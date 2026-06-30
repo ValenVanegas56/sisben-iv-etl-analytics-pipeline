@@ -1,72 +1,78 @@
-# Pipeline de Datos — Sistema de Identificación de Potenciales Beneficiarios (Sisbén IV)
+# SISBEN IV — ETL Pipeline & Power BI Analytics
 
-Implementación de un pipeline de datos de extremo a extremo para el procesamiento, validación y análisis del Sisbén IV en Antioquia. El proyecto integra fuentes de datos del DNP, DANE y la Gobernación de Antioquia, y expone los resultados a través de un modelo semántico tabular en Power BI.
-
----
-
-## Contexto
-
-El Sisbén IV es el instrumento de focalización del Estado colombiano. Este repositorio contiene el código desarrollado para automatizar la ingesta, limpieza, validación de calidad y modelado analítico de los microdatos del Sisbén IV para los **125 municipios del departamento de Antioquia**, cubriendo más de **4 millones de registros** individuales y **26 columnas calculadas** derivadas de las variables originales del DNP.
-
-El pipeline alimenta un tablero de Power BI que permite a la Gobernación consultar coberturas, índices de privación (IPM), composición de hogares, calidad de vivienda y caracterización socioeconómica por municipio, zona y año de encuesta.
+End-to-end data pipeline for processing, validating, and analyzing SISBEN IV microdata across all 125 municipalities of Antioquia, Colombia. The project integrates data sources from the DNP, DANE, and the Gobernación de Antioquia, and delivers results through a tabular semantic model in Power BI.
 
 ---
 
-## Stack Tecnológico
+## Background
 
-| Capa | Herramientas |
+SISBEN IV is Colombia's primary social targeting instrument. This repository contains the code built to automate the ingestion, cleaning, quality validation, and analytical modeling of SISBEN IV microdata for Antioquia — covering over 4 million individual records and 26 computed columns derived from the DNP's original variables.
+
+The pipeline feeds a Power BI dashboard that enables the Gobernación to query coverage rates, deprivation indices (MPI), household composition, housing quality, and socioeconomic profiles by municipality, area, and survey year.
+
+---
+
+## Tech Stack
+
+| Layer | Tools |
 |---|---|
-| Ingesta y transformación | Python · Pandas · PyArrow · DuckDB |
-| Almacenamiento intermedio | Parquet (columnar) |
-| Calidad de datos | Scripts de auditoría propios |
-| Modelo analítico | Power BI · TMDL · DAX |
-| Distribución | OneDrive / SharePoint · CSV por municipio |
-| Automatización | PowerShell · Python scripts |
+| Ingestion & transformation | Python · Pandas · PyArrow · DuckDB |
+| Intermediate storage | Parquet (columnar format) |
+| Data quality | Custom audit scripts |
+| Analytical model | Power BI · TMDL · DAX |
+| Distribution | OneDrive / SharePoint · Per-municipality CSV |
+| Automation | PowerShell · Python scripts |
 
 ---
 
-## Estructura del Repositorio
+## Repository Structure
 
 ```
-portfolio_sisben/
+sisben-iv-etl-analytics-pipeline/
 │
 ├── src/
-│   ├── etl/                       # Pipelines de extracción y transformación
-│   │   ├── etl_sisben_definitivo.py       # Pipeline principal (Sisbén IV)
-│   │   ├── etl_dane_viviendas_hogares.py  # Proyecciones DANE (hogares y viviendas)
-│   │   ├── etl_poblacion_cobertura.py     # Cobertura poblacional por municipio
-│   │   └── upload_recursos.py             # Distribución de archivos a SharePoint
+│   ├── etl/                       # Extraction and transformation pipelines
+│   │   ├── etl_sisben_definitivo.py       # Main pipeline (SISBEN IV)
+│   │   ├── etl_dane_viviendas_hogares.py  # DANE projections (households & dwellings)
+│   │   ├── etl_poblacion_cobertura.py     # Population coverage by municipality
+│   │   └── upload_recursos.py             # File distribution to SharePoint
 │   │
-│   ├── data_quality/              # Auditoría y validación de esquemas
-│   │   ├── audit_cols.py                  # Validación columnas Parquet vs Power BI
-│   │   ├── check_schema.py                # Verificación de tipos de datos
-│   │   ├── deep_pq_check.py               # Inspección profunda de Parquet
-│   │   ├── dax_audit.py                   # Validación de medidas DAX
-│   │   └── strict_audit.py                # Auditoría estricta de integridad
+│   ├── data_quality/              # Schema auditing and validation
+│   │   ├── check_schema.py                # Data type verification
+│   │   ├── dax_audit.py                   # DAX measure validation
+│   │   ├── strict_audit.py                # Strict integrity audit
+│   │   └── reinforce_parquet.py           # Parquet schema enforcement
 │   │
-│   └── utils/                     # Utilidades y post-procesamiento
-│       ├── fix_csv_columns.py             # Normalización de columnas en CSV
-│       ├── fix_sharepoint.py              # Corrección de rutas SharePoint
-│       ├── post_process_municipios.py     # Renombrado y enriquecimiento de CSVs
-│       └── tmdl_reorganize.py             # Reorganización del modelo TMDL
+│   └── utils/                     # Post-processing and utilities
+│       ├── post_process_municipios.py     # CSV enrichment and renaming
+│       ├── gen_dim_only.py                # Dimension table generation
+│       └── tmdl_reorganize.py             # TMDL model reorganization
 │
-├── model/                         # Definición del modelo semántico (Power BI)
-│   ├── tmdl_sisben/               # Modelo tabular en formato TMDL
+├── model/                         # Power BI semantic model definition
+│   ├── tmdl_sisben/               # Full tabular model in TMDL format
 │   │   ├── model.tmdl
 │   │   ├── relationships.tmdl
 │   │   ├── expressions.tmdl
-│   │   └── tables/                # 19 tablas: dimensiones, hechos y calculadas
-│   ├── deploy_dq_model.ps1        # Script de despliegue del modelo
-│   └── master_audit_fixed.ps1     # Auditoría completa del modelo
+│   │   └── tables/                # 19 tables: dimensions, facts, and calculated
+│   ├── deploy_dq_model.ps1        # Model deployment script
+│   └── master_audit_fixed.ps1     # Full model audit automation
 │
-├── docs/                          # Documentación técnica y metodológica
+├── docs/                          # Technical documentation
+│   ├── Documentacion/             # PDF manuals and methodology docs
+│   │   ├── Doc_Metodologico_Transformacion_DATA.pdf
+│   │   ├── Eficiencia_ETL_Parquet.pdf
+│   │   ├── Explicacion_Tablas_Parametro.pdf
+│   │   ├── Manual_Script.pdf
+│   │   └── Tour_Tablero_Sisben.pdf
 │   ├── Documento_Metodologico_Sisben_Actualizado.tex
 │   ├── presentacion_modelo_sisben.tex
-│   └── informes/                  # Informes PDF por municipio (125 municipios)
+│   └── presentacion_tablas_parametro.tex
 │
-├── data/                          # Diccionarios y datos de referencia (públicos)
-│   ├── Variables.xlsx             # Diccionario de variables del Sisbén IV
-│   └── DIVIPOLA_EAT_GOBANT.xlsx   # Codificación DIVIPOLA — Gobernación Antioquia
+├── data/                          # Public reference data and dictionaries
+│   ├── Variables.xlsx             # SISBEN IV variable dictionary (DNP)
+│   ├── DIVIPOLA_EAT_GOBANT.xlsx   # DIVIPOLA geographic codes — Gobernación
+│   ├── anexo-proyecciones-hogares-dptal-mpal-2018-2042.xlsx
+│   └── anexo-proyecciones-viviendas-dptal-mpal-2018-2042.xlsx
 │
 ├── .gitignore
 ├── requirements.txt
@@ -75,21 +81,21 @@ portfolio_sisben/
 
 ---
 
-## Módulos Principales
+## Key Modules
 
 ### `etl_sisben_definitivo.py`
 
-El núcleo del pipeline. Procesa el archivo maestro de microdatos en modo **chunk** (lotes de 150.000 filas) para operar dentro de límites de memoria con conjuntos de datos de varios millones de registros.
+The core of the pipeline. Processes the master microdata file in **chunk mode** (150,000-row batches) to operate within memory limits on multi-million-row datasets.
 
-Principales responsabilidades:
-- Normalización de tipos (Int64 nullable, strings, fechas).
-- Cálculo de **26 columnas derivadas**: clasificación socioeconómica, rango de edad, régimen de salud, categorías de hacinamiento, privaciones de vivienda (IPM), entre otras.
-- Exportación del Parquet final consolidado.
-- Generación de CSVs individuales por municipio vía **DuckDB** (procesamiento SQL sobre Parquet).
-- Generación de la tabla dimensión `dim_descargas_municipios` con URLs de descarga directa desde SharePoint.
+Responsibilities:
+- Type normalization (Int64 nullable, strings, dates).
+- Calculation of **26 derived columns**: socioeconomic classification, age ranges, health coverage regime, overcrowding categories, housing deprivation indicators (MPI), and more.
+- Consolidated Parquet output generation.
+- Per-municipality CSV generation via **DuckDB** (SQL processing over Parquet).
+- Dimension table `dim_descargas_municipios` with SharePoint direct-download URLs.
 
 ```python
-# Ejemplo: cálculo de hacinamiento sobre el chunk
+# Overcrowding calculation on each chunk
 _personas = pd.to_numeric(df["num_personas_hogar"], errors="coerce")
 _cuartos  = pd.to_numeric(df["num_cuartos_vivienda"], errors="coerce").replace(0, np.nan)
 df["Personas_por_Cuarto"] = (_personas / _cuartos).astype("Float64")
@@ -98,86 +104,71 @@ df["Cat_Hacinamiento"] = np.where(_ppc > 3, "Hacinado", "No hacinado")
 
 ### `etl_dane_viviendas_hogares.py`
 
-Procesa las proyecciones oficiales del DANE (hogares y viviendas) para municipios de Antioquia, 2018–2042. Realiza un **melt** de formato ancho a largo, alinea los códigos DANE con DIVIPOLA y genera los Parquet de referencia para los indicadores de cobertura.
+Processes official DANE projections (households and dwellings) for Antioquia municipalities, 2018–2042. Performs a **wide-to-long melt**, aligns DANE codes with DIVIPOLA, and generates the reference Parquet files for coverage indicators.
 
 ### `post_process_municipios.py`
 
-Post-procesa los CSVs por municipio depositados en OneDrive: estandariza nombres de archivo usando codificación DIVIPOLA, agrega la columna `nom_mpio`, y regenera el CSV de dimensión de descargas con las URLs públicas de SharePoint.
+Post-processes the per-municipality CSVs on OneDrive: standardizes filenames using DIVIPOLA encoding, adds the `nom_mpio` column, and regenerates the download dimension CSV with public SharePoint URLs.
 
 ### `upload_recursos.py`
 
-Automatiza la distribución de recursos estáticos (diccionario de variables e informes municipales en PDF) desde el entorno local hacia las carpetas de OneDrive sincronizadas con SharePoint, actualizando las URLs en el CSV dimensión.
+Automates distribution of static resources (variable dictionary and municipal PDF reports) from the local environment to OneDrive folders synced with SharePoint, updating URLs in the dimension CSV.
 
 ---
 
-## Modelo Semántico (TMDL)
+## Semantic Model (TMDL)
 
-El directorio `model/tmdl_sisben/` contiene la definición completa del modelo tabular de Power BI en formato **TMDL** (Tabular Model Definition Language), lo que permite versionarlo en Git y desplegarlo programáticamente.
+The `model/tmdl_sisben/` directory contains the complete Power BI tabular model in **TMDL** (Tabular Model Definition Language), enabling Git versioning and programmatic deployment.
 
-El modelo incluye:
-
-| Tipo | Tablas |
+| Type | Tables |
 |---|---|
-| Tabla de hechos | `fct_Sisben` (microdatos individuales) |
-| Dimensiones | `dim_municipios`, `Dim_Anios`, `Dim_Rango_Edad`, `Dim_Estado_DNP`, `Dim_Marca_DNP`, `Nivel_Sisben`, `Dim_Privacion`, `Dim_IPM_Dimension` |
-| Dimensiones de vivienda | `Dim_Categoria_Vivienda`, `Dim_Bloque_Sanitario`, `Dim_Tipo_Evento`, `Dim_Evento`, `Tabla_Indicadores_Vivienda` |
-| Tablas DANE | `Poblacion_DANE`, `Hogares_DANE`, `Viviendas_DANE` |
-| Auxiliares | `Selector_Vivienda`, `Dim_Indicador_Hogar` |
+| Fact table | `fct_Sisben` (individual microdata records) |
+| Dimensions | `dim_municipios`, `Dim_Anios`, `Dim_Rango_Edad`, `Dim_Estado_DNP`, `Dim_Marca_DNP`, `Nivel_Sisben`, `Dim_Privacion`, `Dim_IPM_Dimension` |
+| Housing dimensions | `Dim_Categoria_Vivienda`, `Dim_Bloque_Sanitario`, `Dim_Tipo_Evento`, `Dim_Evento`, `Tabla_Indicadores_Vivienda` |
+| DANE tables | `Poblacion_DANE`, `Hogares_DANE`, `Viviendas_DANE` |
+| Auxiliary | `Selector_Vivienda`, `Dim_Indicador_Hogar` |
 
 ---
 
-## Informes Municipales
+## Getting Started
 
-La carpeta `docs/informes/` contiene **125 informes en PDF**, uno por cada municipio de Antioquia, generados automáticamente a partir del modelo de datos. Los PDFs incluyen indicadores de cobertura, distribución por clasificación Sisbén y comparativos con las proyecciones DANE.
-
----
-
-## Datos de Referencia
-
-Los archivos en `data/` son de uso público y no contienen microdatos personales:
-
-- **`Variables.xlsx`**: Diccionario oficial de las variables del Sisbén IV (DNP).
-- **`DIVIPOLA_EAT_GOBANT.xlsx`**: Tabla de códigos geográficos DIVIPOLA adaptada para la Gobernación de Antioquia, con correspondencia entre municipios, subregiones y entidades territoriales.
-
-> **Nota sobre datos sensibles:** Los microdatos del Sisbén IV son información personal protegida bajo la Ley 1581 de 2012 (Habeas Data). Los archivos Parquet y CSV con registros individuales no hacen parte de este repositorio.
-
----
-
-## Cómo ejecutar
-
-### Requisitos
+### Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Variables de entorno
+### Environment setup
 
-Antes de ejecutar los scripts ETL, define las rutas de entrada y salida en cada archivo o configura las siguientes variables de entorno:
+Configure the following paths before running the ETL scripts:
 
 ```bash
-SISBEN_PARQUET_IN   # Ruta al Parquet de entrada con microdatos
-SISBEN_PARQUET_OUT  # Ruta de salida del Parquet procesado
-SISBEN_CSV_DIR      # Directorio de salida para CSVs por municipio
-ONEDRIVE_SYNC_DIR   # Carpeta local sincronizada con SharePoint
+SISBEN_PARQUET_IN   # Input Parquet path with microdata
+SISBEN_PARQUET_OUT  # Output path for processed Parquet
+SISBEN_CSV_DIR      # Output directory for per-municipality CSVs
+ONEDRIVE_SYNC_DIR   # Local folder synced with SharePoint
 ```
 
-### Ejecución del pipeline principal
+### Run the main pipeline
 
 ```bash
 python src/etl/etl_sisben_definitivo.py
 ```
 
-### Ejecución de la auditoría de calidad
+### Run quality audits
 
 ```bash
 python src/data_quality/strict_audit.py
-python src/data_quality/audit_cols.py
+python src/data_quality/dax_audit.py
 ```
 
 ---
 
-## Autor
+> **Note on sensitive data:** SISBEN IV microdata contains personal information protected under Colombian Law 1581/2012. Parquet files and CSVs with individual records are not included in this repository.
 
-Valentina Vanegas — Analista de Datos  
-Proyecto desarrollado en el contexto del análisis de datos del Sisbén IV para la Gobernación de Antioquia.
+---
+
+## Author
+
+Valentina Vanegas — Data Analyst  
+Project developed for SISBEN IV data analysis at the Gobernación de Antioquia.
