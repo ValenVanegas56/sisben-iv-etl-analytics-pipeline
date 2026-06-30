@@ -1,0 +1,51 @@
+table Dim_Rango_Edad
+	lineageTag: b0c4b106-1390-4cfd-b478-44c5858f8fcc
+
+	column Rango_Edad
+		lineageTag: 217a8a40-efc2-4f6a-b616-b3dbf8d62f58
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Rango_Edad]
+		sortByColumn: Orden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Orden
+		dataType: string
+		lineageTag: 9d509ca8-fa4e-4e08-a1d6-c65b71d9a3ff
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Orden]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Rango_Edad = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Rango_Edad", STRING,
+				    "Orden", INTEGER,
+				{
+				{"00-04",1},
+				{"05-09",2},
+				{"10-14",3},
+				{"15-19",4},
+				{"20-24",5},
+				{"25-29",6},
+				{"30-34",7},
+				{"35-39",8},
+				{"40-44",9},
+				{"45-49",10},
+				{"50-54",11},
+				{"55-59",12},
+				{"60-64",13},
+				{"65-69",14},
+				{"70-74",15},
+				{"75-79",16},
+				{"80+",17}
+				}
+				)
+
+	annotation PBI_Id = 69129ed6892c4c5fbbb7a632bc3af55c
+

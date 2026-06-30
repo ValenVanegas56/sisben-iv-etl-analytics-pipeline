@@ -1,0 +1,26 @@
+table Selector_Vivienda
+	lineageTag: f119ecbe-a592-4417-8946-ff3ef3486f91
+
+	column Tipo
+		lineageTag: 56080158-f4c7-4678-b49a-7ecf7ad5a15a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Tipo]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Selector_Vivienda = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				"Tipo", STRING,
+				{
+				{"Pisos"},
+				{"Paredes"},
+				{"Servicios"}
+				}
+				)
+
+	annotation PBI_Id = 25adcfed070344d0919c70cccafb3266
+

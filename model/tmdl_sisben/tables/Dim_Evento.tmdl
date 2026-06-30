@@ -1,0 +1,45 @@
+table Dim_Evento
+	lineageTag: a7f76ed7-d8a8-4dd4-94c6-248aabfc10f5
+
+	measure Pct_Evento_Vivienda =
+			
+			SWITCH(
+			    SELECTEDVALUE(Dim_Evento[Afectación Por Evento Natural]),
+			    "Inundación", [Pct_Viv_Afectadas_Inundacion],
+			    "Avalancha", [Pct_Viv_Afectadas_Avalancha],
+			    "Terremoto", [Pct_Viv_Afectadas_Terremoto],
+			    "Incendio", [Pct_Viv_Afectadas_Incendio],
+			    "Vendaval", [Pct_Viv_Afectadas_Vendaval],
+			    "Hundimiento", [Pct_Viv_Afectadas_Hundimiento]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Selectores"
+		lineageTag: 7d3ed90e-07d0-4aca-aac7-b7cda7ea58bc
+
+	column 'Afectación Por Evento Natural'
+		lineageTag: 1fb92f38-ce15-4047-96b4-2a742eef34a4
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Afectación Por Evento Natural]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Evento = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Afectación Por Evento Natural", STRING,
+				    {
+				        {"Inundación"},
+				        {"Avalancha"},
+				        {"Terremoto"},
+				        {"Incendio"},
+				        {"Vendaval"},
+				        {"Hundimiento"}
+				    }
+				)
+
+	annotation PBI_Id = 13a459e0f26b4afb93420df5ab020288
+

@@ -1,0 +1,44 @@
+model Model
+	culture: es-ES
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-CO
+	dataAccessOptions
+		fastCombine
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 'Transformar archivo de 1 Anonimizados'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'Transformar archivo de 1 Anonimizados\Consultas auxiliares'
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Archivo de ejemplo","Parámetro1","Transformar archivo de ejemplo","Transformar archivo","1 Anonimizados (2)","dim_municipios","Poblacion_DANE"]
+
+ref table fct_Sisben
+ref table dim_municipios
+ref table Dim_Anios
+ref table Nivel_Sisben
+ref table Dim_Privacion
+ref table Tabla_Indicadores_Vivienda
+ref table Dim_Evento
+ref table Dim_Tipo_Evento
+ref table Dim_IPM_Dimension
+ref table Tabla
+ref table Dim_Indicador_Hogar
+ref table Dim_Bloque_Sanitario
+ref table Dim_Rango_Edad
+ref table Selector_Vivienda
+ref table Dim_Categoria_Vivienda
+ref table Poblacion_DANE
+ref table Dim_Estado_DNP
+ref table Dim_Marca_DNP
+ref table Hogares_DANE
+ref table Viviendas_DANE
+
+ref cultureInfo es-ES
+

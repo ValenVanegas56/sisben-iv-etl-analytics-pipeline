@@ -1,0 +1,50 @@
+table Poblacion_DANE
+	lineageTag: 7ddadc81-f8d3-4d76-9947-e88535fdc82c
+
+	measure '% Cobertura Sisben' = ```
+			
+			DIVIDE(
+			    COUNTROWS(fct_Sisben), 
+			    SUM('Poblacion_DANE'[Poblacion_Proyectada]), 
+			    0
+			)
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+		lineageTag: 4bb5bbc1-5da0-43bf-8450-0af65b0a4d5a
+
+	column cod_mpio
+		dataType: string
+		lineageTag: 17c38530-50f7-4e23-b7cc-717af055d5a2
+		sourceColumn: cod_mpio
+
+	column anio
+		dataType: int64
+		lineageTag: 27ff8ef1-4400-4260-a513-8e2a78febca9
+		sourceColumn: anio
+
+	column Cod_clase
+		dataType: int64
+		lineageTag: 659f8da8-40a0-4946-a01a-600d02e5c52b
+		sourceColumn: Cod_clase
+
+	column sexo_persona
+		dataType: int64
+		lineageTag: fbc0eb25-527b-4615-8383-a9e9fc13c0b2
+		sourceColumn: sexo_persona
+
+	column Rango_Edad
+		dataType: string
+		lineageTag: 02c66906-0764-4c08-be45-585876ec3c7f
+		sourceColumn: Rango_Edad
+
+	column Poblacion_Proyectada
+		dataType: int64
+		formatString: #,0
+		lineageTag: 724045d6-e0bb-4e92-843d-1b4a49a49692
+		sourceColumn: Poblacion_Proyectada
+
+	partition Partition_Pob_DANE = m
+		source = let Source = Parquet.Document(File.Contents("D:\VVANEGASA\My Documents\poblacion_proyectada.parquet")),#"Changed Type" = Table.TransformColumnTypes(Source,{{"cod_mpio", type text}, {"anio", Int64.Type}, {"Cod_clase", Int64.Type}, {"sexo_persona", Int64.Type}, {"Rango_Edad", type text}, {"Poblacion_Proyectada", Int64.Type}}) in #"Changed Type"
+

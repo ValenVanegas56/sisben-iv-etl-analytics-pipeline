@@ -1,0 +1,469 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,backgrounds,calc}
+
+\usetheme{Madrid}
+\setbeamercolor{palette primary}{bg=blue!65!black,fg=white}
+\setbeamercolor{palette secondary}{bg=blue!45!black,fg=white}
+\setbeamercolor{structure}{fg=blue!65!black}
+\setbeamercolor{block title}{bg=blue!12,fg=blue!65!black}
+\setbeamercolor{alerted text}{fg=orange!85!black}
+\setbeamertemplate{navigation symbols}{}
+
+\newcommand{\src}[1]{{\tiny\color{gray}Fuente: #1}}
+
+\title[Tablas de Par\'ametro en Power BI]%
+      {Por qu\'e las Tablas de Par\'ametro\\No Tienen Peso y S\'i Tienen Sentido}
+\subtitle{VertiPaq, SWITCH y dise\~no din\'amico de matrices}
+\author{Departamento de Planeaci\'on --- Antioquia}
+\date{Mayo 2026}
+
+\begin{document}
+
+% =============================================================
+\begin{frame}
+\titlepage
+\end{frame}
+
+% =============================================================
+\begin{frame}{La pregunta}
+
+\begin{alertblock}{Lo que se pregunta}
+``Si una tabla no tiene relaci\'on con los datos reales,
+\textbf{?`para qu\'e sirve?
+?`No agrega peso innecesario al modelo?}''
+\end{alertblock}
+
+\bigskip
+Para responder hay que entender tres cosas:
+
+\begin{enumerate}
+  \item C\'omo Power BI guarda los datos en memoria (\textbf{motor VertiPaq})
+  \item Qu\'e \textbf{problema real} resuelve la tabla de par\'ametro
+  \item C\'omo funciona la f\'ormula \texttt{SWITCH + SELECTEDVALUE}
+\end{enumerate}
+
+\bigskip
+\src{Russo \& Ferrari, \textit{The Definitive Guide to DAX}, 2nd ed., Microsoft Press, 2019}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{C\'omo guarda los datos Power BI: motor VertiPaq}
+
+Power BI \textbf{no guarda filas}. Guarda \textbf{columnas} comprimidas de forma independiente.
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}[
+  col/.style={draw=blue!40, fill=blue!8, rounded corners=2pt,
+              minimum width=1.3cm, minimum height=2.4cm,
+              font=\tiny, align=center},
+  lbl/.style={font=\scriptsize, align=center},
+  arr/.style={-{Stealth[length=5pt]}, thick, blue!50}
+]
+
+%% Tabla original
+\node[lbl] at (1.3, 1.7) {\textbf{Tabla original (25 M filas)}};
+\node[col] (c1) at (0,    0) {cod\_mpio\\[2pt]05001\\05001\\05002\\\ldots};
+\node[col] (c2) at (1.4,  0) {energia\\[2pt]1\\2\\1\\\ldots};
+\node[col] (c3) at (2.8,  0) {paredes\\[2pt]2\\5\\1\\\ldots};
+
+%% Flecha
+\draw[arr] (3.6, 0) -- (5.0, 0) node[midway, above, font=\scriptsize]{VertiPaq};
+
+%% Resultado comprimido
+\node[lbl] at (7.5, 1.7) {\textbf{En memoria: diccionario + \'indices}};
+\node[draw=orange!50, fill=orange!8, rounded corners, font=\tiny,
+      inner sep=8pt, align=left] at (6.4, 0) {
+  Diccionario ``energia'':\\
+  \quad 0 $\to$ tiene servicio\\
+  \quad 1 $\to$ no tiene servicio\\[4pt]
+  25 M \'indices: 1 bit c/u\\
+  $\approx$ \textbf{3 MB total}
+};
+
+\end{tikzpicture}
+\end{center}
+
+\medskip
+{\footnotesize
+\textbf{Regla clave de VertiPaq:}
+cuanto \emph{menos} valores \'unicos tiene una columna,
+m\'as peque\~na queda despu\'es de compresi\'on.\\
+Una columna con 2 valores en 25 M filas ocupa $\approx$ 3 MB.
+Una columna con 15 valores en \textbf{15 filas} ocupa $\approx$ \textbf{1 KB}.
+}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{?`Cu\'anto pesa una tabla de par\'ametro?}
+
+\begin{columns}[T]
+
+\column{0.50\textwidth}
+
+\begin{block}{fct\_Sisben (tabla de hechos)}
+\begin{tabular}{lr}
+\toprule
+Propiedad & Valor \\
+\midrule
+Filas     & 25{,}000{,}000 \\
+Columnas  & 135 \\
+Tama\~no comprimido & $\approx$ 1.5 GB \\
+\bottomrule
+\end{tabular}
+\end{block}
+
+\bigskip
+
+\begin{block}{Dim\_IPM\_Dimension (tabla de par\'ametro)}
+\begin{tabular}{lr}
+\toprule
+Propiedad & Valor \\
+\midrule
+Filas     & \textbf{15} \\
+Columnas  & \textbf{2} \\
+Tama\~no comprimido & $\approx$ \textbf{1 KB} \\
+\bottomrule
+\end{tabular}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}
+  %% Barra grande = fct_Sisben
+  \fill[blue!35] (0,0) rectangle (3.4,3.4);
+  \node[white, font=\small\bfseries, align=center] at (1.7,1.7)
+        {fct\_Sisben\\1.5 GB};
+
+  %% Linea = tabla parametro (invisible en escala)
+  \draw[orange!80!black, very thick] (0, 3.45) -- (3.4, 3.45);
+  \node[font=\tiny, orange!70!black, align=left] at (1.7, 3.75)
+        {Dim\_IPM\_Dimension $\approx$ 1 KB\\(invisible en esta escala)};
+
+  %% Eje
+  \draw[<->, gray, thin] (3.6,0) -- (3.6,3.4)
+        node[midway, right, font=\tiny, gray]{1.5 GB};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+{\footnotesize
+La tabla de par\'ametro es \textbf{1.500.000 veces\\m\'as peque\~na}.
+Su impacto en RAM\\es literalmente \textbf{cero}.
+}
+\end{columns}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{El problema real: mostrar 15 indicadores en una sola matriz}
+
+\textbf{Situaci\'on:} 125 municipios, 15 indicadores IPM.
+El usuario quiere ver la tasa de \emph{cualquiera} de los 15 por municipio.
+
+\bigskip
+\begin{columns}[T]
+
+\column{0.48\textwidth}
+\begin{exampleblock}{Opci\'on A --- 15 columnas fijas}
+\begin{center}
+\begin{tikzpicture}[font=\tiny]
+  \fill[gray!15] (0,0) rectangle (4.2,1.4);
+  \foreach \x in {0.3,0.6,...,4.0}{
+    \draw[blue!30] (\x,0)--(\x,1.3);
+    \node[rotate=90, blue!60!black] at (\x+0.12,0.65) {I\the\numexpr\x*10/3\relax};
+  }
+  \node[red!70!black, font=\tiny] at (2.1,-0.35)
+        {15 columnas fijas, ilegible};
+\end{tikzpicture}
+\end{center}
+\textcolor{red!70!black}{\textbf{Problema:}} el usuario no puede elegir; ve todo a la vez.
+\end{exampleblock}
+
+\column{0.48\textwidth}
+\begin{alertblock}{Opci\'on B --- 15 p\'aginas}
+\begin{itemize}\footnotesize
+  \item P\'ag 1: municipios vs.\ bajo logro educativo
+  \item P\'ag 2: municipios vs.\ analfabetismo
+  \item \ldots
+  \item P\'ag 15: municipios vs.\ hacinamiento
+\end{itemize}
+\textcolor{red!70!black}{\textbf{Problema:}} si la f\'ormula cambia,
+hay que editar 15 visuals.
+Si el t\'itulo cambia, 15 ediciones.
+Esto se llama \emph{duplicaci\'on de l\'ogica}: el peor error en dise\~no BI.
+\end{alertblock}
+
+\end{columns}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}[fragile]{La soluci\'on: tabla de par\'ametro + SWITCH}
+
+\begin{columns}[T]
+
+\column{0.42\textwidth}
+
+\textbf{Paso 1 --- La tabla de par\'ametro}\\
+Solo guarda los \emph{nombres} de las opciones:
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\node[draw=orange!60, fill=orange!8, rounded corners,
+      inner sep=8pt, align=left] {
+  \textbf{Dim\_IPM\_Dimension}\\[2pt]
+  \rule{4cm}{0.4pt}\\[2pt]
+  \textit{Dimension\_IPM}\\[2pt]
+  \rule{4cm}{0.4pt}\\[1pt]
+  Bajo logro educativo\\
+  Analfabetismo\\
+  Inasistencia escolar\\
+  Rezago escolar\\
+  \ldots\ (15 filas en total)
+};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Paso 2 ---} El usuario elige \\ ``Analfabetismo'' en el slicer.
+
+\column{0.55\textwidth}
+
+\textbf{Paso 3 --- La medida DAX captura la elecci\'on:}
+
+\bigskip
+\begin{tikzpicture}
+\node[draw=blue!30, fill=blue!5, rounded corners,
+      inner sep=8pt, font=\tiny\ttfamily,
+      text width=6.4cm, align=left] {
+  Pct\_Privacion\_Seleccionada =\\[2pt]
+  SWITCH(\\
+  \quad SELECTEDVALUE(\\
+  \quad\quad Dim\_IPM\_Dimension[Dimension\_IPM]),\\[2pt]
+  \quad "Bajo logro educativo",\\
+  \quad\quad [Pct\_I1\_BajoLogroEducativo],\\
+  \quad "Analfabetismo",\\
+  \quad\quad \textbf{[Pct\_I2\_Analfabetismo],}\\
+  \quad "Inasistencia escolar",\\
+  \quad\quad [Pct\_I3\_InasistenciaEscolar],\\
+  \quad ...\\
+  )
+};
+\end{tikzpicture}
+
+\bigskip
+{\footnotesize $\Rightarrow$ La matriz muestra \textbf{un solo valor}
+por municipio, el que corresponde a la elecci\'on del usuario.}
+
+\end{columns}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{Flujo completo: del clic del usuario al valor en pantalla}
+
+\centering
+\begin{tikzpicture}[
+  dato/.style={rectangle, draw=orange!60, fill=orange!10, rounded corners=4pt,
+               minimum height=1cm, minimum width=3cm,
+               font=\small, align=center},
+  calc/.style={rectangle, draw=blue!50, fill=blue!8, rounded corners=4pt,
+               minimum height=1cm, minimum width=3.2cm,
+               font=\small, align=center},
+  viz/.style={rectangle, draw=green!50!black, fill=green!8, rounded corners=4pt,
+              minimum height=1cm, minimum width=3cm,
+              font=\small, align=center},
+  arr/.style={-{Stealth[length=5pt]}, thick, gray!70}
+]
+
+\node[dato] (param) at (0,    0)
+      {Slicer\\{\tiny Dim\_IPM\_Dimension}\\{\tiny 15 filas}};
+
+\node[calc] (sel)   at (5.0,  0)
+      {\texttt{SELECTEDVALUE()}\\{\tiny Lee ``Analfabetismo''}};
+
+\node[calc] (sw)    at (5.0, -2)
+      {\texttt{SWITCH()}\\{\tiny Mapea a [Pct\_I2]}};
+
+\node[calc] (meas)  at (10.0, -2)
+      {[Pct\_I2\_Analfabetismo]\\{\tiny Opera sobre fct\_Sisben}\\{\tiny 25 M filas}};
+
+\node[viz]  (vis)   at (10.0,  0)
+      {Matriz del tablero\\{\tiny Municipio | \% Analfab.}\\{\tiny Medell\'in | 4.2\%}};
+
+%% Flechas
+\draw[arr] (param) -- node[above, font=\tiny]{contexto de filtro} (sel);
+\draw[arr] (sel)   -- (sw);
+\draw[arr] (sw)    -- node[above, font=\tiny]{llama a la medida} (meas);
+\draw[arr] (meas)  -- (vis);
+
+%% Separador "sin relacion"
+\draw[dashed, orange!60, thick] (2.3, 0.7) -- (2.3, -2.7);
+\node[font=\tiny, orange!70!black, align=center] at (2.3, -3.1)
+      {sin relaci\'on\\f\'isica entre\\tablas};
+
+\end{tikzpicture}
+
+\bigskip
+{\footnotesize
+\textbf{Punto clave:} la tabla de par\'ametro \textbf{nunca se une} a fct\_Sisben.
+Funciona como un ``control remoto'': la medida DAX lee la selecci\'on
+y decide qu\'e c\'alculo ejecutar sobre los 25 M de registros.\\
+\src{SQLBI.com, ``Disconnected tables and SELECTEDVALUE'', Alberto Ferrari, 2020}
+}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{?`Por qu\'e funciona sin relaci\'on f\'isica?}
+
+\begin{columns}[T]
+
+\column{0.50\textwidth}
+
+En Power BI las relaciones \textbf{propagan filtros} entre tablas.
+Pero \texttt{SELECTEDVALUE()} \textbf{no necesita propagaci\'on}:
+lee directamente el contexto de filtro del visual.
+
+\bigskip
+\begin{block}{An\'alogo: TV y control remoto}
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, fill=gray!8,
+              inner sep=6pt, minimum width=2.5cm,
+              minimum height=0.8cm, font=\scriptsize, align=center},
+  arr/.style={-{Stealth[length=4pt]}, thick}
+]
+\node[box] (tv)    at (3,  0)   {Pantalla\\(visual Power BI)};
+\node[box] (ctrl)  at (0, -1.5) {Control remoto\\(slicer / tabla de param)};
+\node[box] (datos) at (6, -1.5) {Cable de datos\\(fct\_Sisben)};
+
+\draw[arr]          (ctrl)  -- node[left,  font=\tiny]{se\~nal} (tv);
+\draw[arr]          (datos) -- node[right, font=\tiny]{datos}   (tv);
+\draw[dashed, gray] (ctrl)  -- node[below, font=\tiny]{sin cable directo} (datos);
+\end{tikzpicture}
+\end{center}
+El control cambia lo que muestra la pantalla,\\
+sin estar conectado directamente al cable.
+\end{block}
+
+\column{0.47\textwidth}
+
+\begin{alertblock}{?`Qu\'e es el contexto de filtro?}
+Cuando el slicer selecciona ``Analfabetismo'',
+Power BI establece un \textbf{contexto de filtro}
+sobre \texttt{Dim\_IPM\_Dimension}.
+
+\bigskip
+\texttt{SELECTEDVALUE()} lee ese contexto:
+\begin{itemize}\footnotesize
+  \item Si hay \textbf{exactamente 1 valor} seleccionado $\to$ lo devuelve
+  \item Si hay 0 o m\'as de 1 $\to$ devuelve BLANK
+\end{itemize}
+
+\bigskip
+\textbf{No necesita relaci\'on} porque el contexto
+de filtro no requiere relaci\'on f\'isica para
+\emph{leerse}; solo para \emph{propagarse} a otras tablas.
+\end{alertblock}
+
+\bigskip
+\src{Russo \& Ferrari, \textit{The Definitive Guide to DAX},\\Cap.~5: Filter Context, p.~142--178, 2019}
+
+\end{columns}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{Comparativa: tres formas de resolver el mismo problema}
+
+\begin{center}
+\begin{tabular}{lp{3cm}p{3cm}p{3.4cm}}
+\toprule
+ & \textbf{15 columnas fijas} & \textbf{15 p\'aginas} & \textbf{Tabla de par\'ametro} \\
+\midrule
+El usuario elige qu\'e ver
+  & \textcolor{red!70!black}{No}
+  & \textcolor{orange}{Solo por p\'agina}
+  & \textcolor{green!50!black}{\textbf{S\'i, en tiempo real}} \\
+\addlinespace
+Visuals necesarios
+  & 1 (ilegible)
+  & 15
+  & \textbf{1} \\
+\addlinespace
+Si cambia la f\'ormula
+  & Editar 1 medida
+  & \textcolor{red!70!black}{Editar 15 visuals}
+  & \textbf{Editar 1 medida} \\
+\addlinespace
+Peso en RAM extra
+  & 0
+  & 0
+  & \textbf{$\sim$1 KB} \\
+\addlinespace
+Mantenimiento
+  & Bajo
+  & \textcolor{red!70!black}{Muy alto}
+  & \textbf{Bajo} \\
+\addlinespace
+Interactividad
+  & Ninguna
+  & Baja
+  & \textbf{Alta} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\begin{exampleblock}{Conclusi\'on}
+La tabla de par\'ametro a\~nade \textbf{$\approx$ 1 KB de peso} y
+\textbf{interactividad total}.
+Es el patr\'on recomendado por Microsoft y SQLBI para matrices din\'amicas.\\[4pt]
+\src{Microsoft, ``Field parameters in Power BI Desktop'', docs.microsoft.com, 2022}
+\end{exampleblock}
+
+\end{frame}
+
+% =============================================================
+\begin{frame}{Resumen}
+
+\begin{enumerate}\setlength\itemsep{0.6em}
+
+  \item \textbf{VertiPaq comprime por columna, no por fila.}
+    Una tabla de 15 filas ocupa $\approx$ 1 KB en memoria,
+    sin importar que la tabla de hechos tenga 25 millones de filas.
+
+  \item \textbf{La tabla de par\'ametro no necesita relaci\'on.}
+    Su funci\'on es solo proveer opciones al slicer.
+    La medida DAX lee la elecci\'on del usuario con
+    \texttt{SELECTEDVALUE()}, sin propagaci\'on de filtros.
+
+  \item \textbf{Sin ella, las alternativas son peores.}
+    15 columnas fijas: ilegible.
+    15 p\'aginas: duplicaci\'on de l\'ogica, mantenimiento insostenible.
+
+  \item \textbf{Es el est\'andar de la industria.}
+    Microsoft lo document\'o como \textit{Field Parameters} en 2022.
+    SQLBI lo recomienda como pr\'actica \'optima desde 2015.
+
+\end{enumerate}
+
+\bigskip
+\begin{center}
+\src{Fuentes: Russo \& Ferrari (2019) $\cdot$
+SQLBI.com, Ferrari (2015, 2020) $\cdot$
+Microsoft Docs (2022)}
+\end{center}
+
+\end{frame}
+
+\end{document}

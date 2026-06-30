@@ -1,0 +1,40 @@
+relationship fct_Sisben_dim_municipios
+	fromColumn: fct_Sisben.cod_mpio
+	toColumn: dim_municipios.cod_mpio
+
+relationship Relationship
+	fromColumn: Poblacion_DANE.cod_mpio
+	toColumn: dim_municipios.cod_mpio
+
+relationship Poblacion_Dim_Anios
+	fromColumn: Poblacion_DANE.anio
+	toColumn: Dim_Anios.anio
+
+relationship Poblacion_Dim_Rango_Edad
+	fromColumn: Poblacion_DANE.Rango_Edad
+	toColumn: Dim_Rango_Edad.Rango_Edad
+
+relationship fct_Sisben_Dim_Estado_DNP
+	fromColumn: fct_Sisben.estado
+	toColumn: Dim_Estado_DNP.Cod_Estado
+
+relationship fct_Sisben_Dim_Anios
+	fromColumn: fct_Sisben.anio
+	toColumn: Dim_Anios.anio
+
+
+relationship Hogares_DANE_dim_municipios
+	fromColumn: Hogares_DANE.cod_mpio
+	toColumn: dim_municipios.cod_mpio
+
+relationship Hogares_DANE_Dim_Anios
+	fromColumn: Hogares_DANE.anio
+	toColumn: Dim_Anios.anio
+
+relationship Viviendas_DANE_dim_municipios
+	fromColumn: Viviendas_DANE.cod_mpio
+	toColumn: dim_municipios.cod_mpio
+
+relationship Viviendas_DANE_Dim_Anios
+	fromColumn: Viviendas_DANE.anio
+	toColumn: Dim_Anios.anio

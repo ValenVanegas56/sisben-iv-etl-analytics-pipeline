@@ -1,0 +1,99 @@
+table Dim_Indicador_Hogar
+	lineageTag: 42c4245d-17cb-4a8f-98fe-82ea69cdc3fd
+
+	measure Valor_Hogar_Pct =
+			IF(
+			    HASONEVALUE(Dim_Indicador_Hogar[Tipo]),
+			    IF(SELECTEDVALUE(Dim_Indicador_Hogar[Tipo]) = "Condiciones", [Valor_Indicador_Hogar], BLANK()),
+			    AVERAGEX(
+			        FILTER(VALUES(Dim_Indicador_Hogar[Tipo]), Dim_Indicador_Hogar[Tipo] = "Condiciones"),
+			        [Valor_Indicador_Hogar]
+			    )
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Selectores"
+		lineageTag: f2f4fdae-321d-4ef0-adb1-5dba1a66197e
+
+	measure Valor_Hogar_Gasto =
+			
+			IF(
+			    SELECTEDVALUE(Dim_Indicador_Hogar[Tipo]) = "Gasto",
+			    [Valor_Indicador_Hogar]
+			)
+		formatString: \$\ #,0;-\$\ #,0;\$\ #,0
+
+		displayFolder: "Selectores"
+		lineageTag: 55cace44-e6ec-4729-83c0-2e2b82fe0497
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-CO"}
+
+	column Indicador
+		lineageTag: 4b9d05ce-ee27-441b-a98a-6578ea392f29
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Indicador]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Categoria
+		lineageTag: 73da5fed-2e70-4e51-a468-4acc6ed0b808
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Categoria]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna
+		type: calculated
+		lineageTag: 156098f5-69b4-412d-8a2b-f4fa5ce6d629
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	column Tipo =
+			
+			IF(
+			    CONTAINSSTRING(Dim_Indicador_Hogar[Indicador], "Gasto"),
+			    "Gasto",
+			    "Condiciones"
+			)
+		lineageTag: 060ead97-c75c-4226-ab55-efbd324f34d7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Indicador_Hogar = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Indicador", STRING,
+				    "Categoria", STRING,
+				{
+				    {"% Agua disponible 7 días", "Condiciones básicas"},
+				    {"% Con cocina", "Condiciones básicas"},
+				
+				    {"% Con nevera", "Equipamiento"},
+				    {"% Con lavadora", "Equipamiento"},
+				    {"% Con computador", "Equipamiento"},
+				    {"% Con internet", "Equipamiento"},
+				
+				    {"% Con moto", "Movilidad"},
+				    {"% Con carro", "Movilidad"},
+				    {"% Con tractor", "Movilidad"},
+				    {"% Con otra propiedad", "Movilidad"},                                                                                    {"Gasto promedio alimentación", "Gastos del hogar"},
+				    {"Gasto promedio transporte", "Gastos del hogar"},
+				    {"Gasto promedio educación", "Gastos del hogar"},
+				    {"Gasto promedio salud", "Gastos del hogar"},
+				    {"Gasto promedio servicios públicos", "Gastos del hogar"},
+				    {"Gasto promedio celular", "Gastos del hogar"},
+				    {"Gasto promedio arriendo", "Gastos del hogar"},
+				    {"Gasto promedio otros", "Gastos del hogar"},
+				    {"Gasto promedio total", "Gastos del hogar"}
+				})
+
+	annotation PBI_Id = 6fac7f863d8740bfa9fb6ddef2658559
+

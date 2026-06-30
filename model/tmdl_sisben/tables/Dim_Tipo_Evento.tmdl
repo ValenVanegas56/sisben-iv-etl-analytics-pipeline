@@ -1,0 +1,47 @@
+table Dim_Tipo_Evento
+	lineageTag: 2e758d9b-22cc-4f05-aa8e-31398de7963a
+
+	measure Prom_Eventos_Vivienda =
+			VAR _evento = SELECTEDVALUE(Dim_Tipo_Evento[TipoEvento])
+			RETURN
+			SWITCH(
+			    _evento,
+			    "InundaciÃ³n",   CALCULATE(AVERAGE(fct_Sisben[num_evento_inundacion]), fct_Sisben[ind_evento_inundacion] = 1),
+			    "Avalancha",    CALCULATE(AVERAGE(fct_Sisben[num_evento_avalancha]),  fct_Sisben[ind_evento_avalancha] = 1),
+			    "Terremoto",    CALCULATE(AVERAGE(fct_Sisben[num_evento_terremoto]),  fct_Sisben[ind_evento_terremoto] = 1),
+			    "Incendio",     CALCULATE(AVERAGE(fct_Sisben[num_evento_incendio]),   fct_Sisben[ind_evento_incendio] = 1),
+			    "Vendaval",     CALCULATE(AVERAGE(fct_Sisben[Num_evento_vendaval]),   fct_Sisben[ind_evento_vendaval] = 1),
+			    "Hundimiento",  CALCULATE(AVERAGE(fct_Sisben[num_evento_hundimiento]),fct_Sisben[ind_evento_hundimiento] = 1)
+			)
+
+		displayFolder: "Selectores"
+		lineageTag: f0cbe362-8916-4593-8f64-685d2516cf6d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TipoEvento
+		lineageTag: 29f15a54-df12-40d5-8582-58144f1842e3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [TipoEvento]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Tipo_Evento = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "TipoEvento", STRING,
+				    {
+				        {"Inundación"},
+				        {"Avalancha"},
+				        {"Terremoto"},
+				        {"Incendio"},
+				        {"Vendaval"},
+				        {"Hundimiento"}
+				    }
+				)
+
+	annotation PBI_Id = 770c49f2053a41e79758a2df59077b98
+

@@ -1,0 +1,390 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fontawesome5}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\setbeamercolor{palette primary}{bg=blue!60!black, fg=white}
+\setbeamercolor{palette secondary}{bg=blue!40!black, fg=white}
+\setbeamercolor{palette tertiary}{bg=blue!20!black, fg=white}
+\setbeamercolor{structure}{fg=blue!60!black}
+\setbeamercolor{block title}{bg=blue!15, fg=blue!60!black}
+\setbeamercolor{alerted text}{fg=orange!80!black}
+
+\title[Modelo Relacional SISBEN]{Arquitectura del Modelo Sem\'antico\\Tablero SISBEN -- Antioquia}
+\subtitle{Dise\~no relacional, tablas de par\'ametro y organizaci\'on de medidas}
+\author{Departamento de Planeaci\'on de Antioquia}
+\date{Mayo 2026}
+
+\newcommand{\yes}{\textcolor{green!60!black}{\faCheck}}
+\newcommand{\no}{\textcolor{red!70!black}{\faTimes}}
+\newcommand{\warn}{\textcolor{orange}{\faExclamationTriangle}}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Contenido}
+  \tableofcontents
+\end{frame}
+
+\section{Inventario del Modelo}
+
+\begin{frame}{Inventario general del modelo}
+\begin{columns}
+\column{0.48\textwidth}
+\begin{block}{Objetos del modelo (mayo 2026)}
+\begin{tabular}{lr}
+\toprule
+Objeto & Cantidad \\
+\midrule
+Tablas totales & 18 \\
+\quad Tablas de hechos & 2 \\
+\quad Dimensiones conectadas & 4 \\
+\quad Tablas de par\'ametro & 10 \\
+Columnas (fct\_Sisben) & 135 \\
+Medidas totales & 203 \\
+Relaciones activas & 6 \\
+Carpetas de medidas & 7 \\
+\bottomrule
+\end{tabular}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{Distribuci\'on de medidas por carpeta}
+\begin{tabular}{lr}
+\toprule
+Carpeta & Medidas \\
+\midrule
+IPM + Dim. IPM & $\sim$55 \\
+Vivienda (3 subcarpetas) & $\sim$50 \\
+Hogares + Gasto & $\sim$35 \\
+Demograf\'ia & $\sim$30 \\
+Selectores & 12 \\
+Calidad Datos & 13 \\
+UX & 6 \\
+\bottomrule
+\end{tabular}
+\end{block}
+\end{columns}
+\end{frame}
+
+\section{Esquema Relacional}
+
+\begin{frame}{Esquema estrella del modelo}
+\centering
+\begin{tikzpicture}[
+  fact/.style={rectangle, draw=blue!60!black, fill=blue!15, rounded corners=3pt,
+               minimum width=2.8cm, minimum height=0.9cm, font=\small\bfseries},
+  dim/.style={rectangle, draw=green!50!black, fill=green!10, rounded corners=3pt,
+              minimum width=2.5cm, minimum height=0.7cm, font=\scriptsize},
+  arr/.style={-{Stealth[length=5pt]}, thick, gray!70},
+  node distance=0.4cm
+]
+
+% Tablas de hechos (centro)
+\node[fact] (sisben) {fct\_Sisben\\{\tiny 135 cols | 191 medidas}};
+\node[fact, below=0.6cm of sisben] (pob) {Poblacion\_DANE\\{\tiny 6 cols | 1 medida}};
+
+% Dimensiones conectadas
+\node[dim, right=2.5cm of sisben, yshift=0.5cm] (mpio) {dim\_municipios\\{\tiny 21 cols}};
+\node[dim, right=2.5cm of sisben, yshift=-0.5cm] (est) {Dim\_Estado\_DNP\\{\tiny 3 cols}};
+\node[dim, left=2.5cm of sisben] (anios) {Dim\_Anios\\{\tiny 1 col}};
+\node[dim, right=2.5cm of pob, yshift=-0.3cm] (rango) {Dim\_Rango\_Edad\\{\tiny 2 cols}};
+
+% Relaciones
+\draw[arr] (sisben) -- node[above, font=\tiny]{N:1} (mpio);
+\draw[arr] (sisben) -- node[below, font=\tiny]{N:1} (est);
+\draw[arr] (sisben) -- node[above, font=\tiny]{N:1} (anios);
+\draw[arr] (pob) -- node[above, font=\tiny]{N:1} (mpio);
+\draw[arr] (pob) -- node[below, font=\tiny]{N:1} (rango);
+\draw[arr] (pob) to[bend left=20] node[left, font=\tiny]{N:1} (anios);
+
+\end{tikzpicture}
+
+\vspace{0.3cm}
+{\small \alert{Esquema estrella cl\'asico}: cada tabla de hechos conectada a dimensiones via claves. Todas las relaciones son \textbf{N:1 activas, filtraje en una direcci\'on}.}
+\end{frame}
+
+\section{Tablas de Par\'ametro Desconectadas}
+
+\begin{frame}{?`Qu\'e son las tablas de par\'ametro?}
+\begin{columns}
+\column{0.52\textwidth}
+\textbf{Definici\'on:} tablas sin relaci\'on con la tabla de hechos, usadas exclusivamente como \textit{slicer} para controlar qu\'e medida se muestra en un visual.
+
+\vspace{0.4cm}
+\begin{alertblock}{Patr\'on DAX: Disconnected Slicer Table}
+\begin{enumerate}\footnotesize
+  \item La tabla tiene 1 columna con nombres de opciones
+  \item El usuario selecciona una opci\'on en el slicer
+  \item La medida captura esa selecci\'on con \texttt{SELECTEDVALUE()}
+  \item Un \texttt{SWITCH()} devuelve el c\'alculo correspondiente
+\end{enumerate}
+\end{alertblock}
+
+\column{0.44\textwidth}
+\begin{block}{Tablas de par\'ametro en el modelo}
+\begin{tabular}{ll}
+\toprule
+Tabla & Controla \\
+\midrule
+Nivel\_Sisben & Eje de la matriz \\
+Dim\_Privacion & Tipo de privaci\'on \\
+Dim\_IPM\_Dimension & Indicador IPM \\
+Dim\_Evento & Evento natural \\
+Dim\_Indicador\_Hogar & Indicador hogar \\
+Dim\_Bloque\_Sanitario & Variable sanitaria \\
+Dim\_Categoria\_Vivienda & Categor\'ia material \\
+Selector\_Vivienda & Tipo de vivienda \\
+Tabla\_Ind\_Vivienda & Servicio p\'ublico \\
+\bottomrule
+\end{tabular}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{C\'omo funciona: ejemplo real del modelo}
+
+\begin{columns}
+\column{0.48\textwidth}
+\textbf{Tabla \texttt{Dim\_IPM\_Dimension}} (slicer):
+\begin{center}
+\begin{tikzpicture}
+\node[draw=gray, fill=gray!10, rounded corners, font=\scriptsize,
+      inner sep=6pt, align=left]{
+  Dimension\_IPM \\ \midrule
+  Bajo logro educativo \\
+  Analfabetismo \\
+  Inasistencia escolar \\
+  Rezago escolar \\
+  Barreras primera infancia \\
+  \ldots (15 indicadores)
+};
+\end{tikzpicture}
+\end{center}
+
+\column{0.50\textwidth}
+\textbf{Medida \texttt{Pct\_Privacion\_Seleccionada}:}
+\vspace{0.2cm}
+\begin{tikzpicture}
+\node[draw=blue!30, fill=blue!5, rounded corners, font=\tiny\ttfamily,
+      inner sep=6pt, align=left, text width=5.8cm]{
+  \textbf{VAR} Val = SWITCH(\newline
+  \quad SELECTEDVALUE(\newline
+  \quad\quad Dim\_IPM\_Dimension[Dimension\_IPM]),\newline
+  \quad "Bajo logro educativo",\newline
+  \quad\quad [Pct\_I1\_BajoLogroEducativo],\newline
+  \quad "Analfabetismo",\newline
+  \quad\quad [Pct\_I2\_Analfabetismo],\newline
+  \quad ...\newline
+  )\newline
+  \textbf{RETURN} Val
+};
+\end{tikzpicture}
+\end{columns}
+
+\vspace{0.3cm}
+\centering\footnotesize
+\textbf{Resultado:} una sola columna en la matriz muestra cualquiera de los 15 indicadores IPM seg\'un la selecci\'on del usuario.
+\end{frame}
+
+\begin{frame}{Flujo completo: del slicer al visual}
+\centering
+\begin{tikzpicture}[
+  box/.style={rectangle, rounded corners=4pt, draw, fill=white,
+              minimum height=0.7cm, minimum width=2.8cm, font=\small, align=center},
+  slicer/.style={box, fill=orange!15, draw=orange!60!black},
+  measure/.style={box, fill=blue!12, draw=blue!50!black},
+  visual/.style={box, fill=green!12, draw=green!50!black},
+  arr/.style={-{Stealth[length=5pt]}, thick},
+  note/.style={font=\scriptsize, gray}
+]
+
+\node[slicer] (s1) at (0,0) {Slicer\\{\tiny Dim\_IPM\_Dimension}};
+\node[note] at (0,-0.7) {usuario elige};
+\node[note] at (0,-1.0) {"Analfabetismo"};
+
+\node[measure] (m1) at (4.5,0) {\texttt{SELECTEDVALUE()}\\{\tiny captura selecci\'on}};
+
+\node[measure] (m2) at (8.5,0) {\texttt{SWITCH()}\\{\tiny mapea a medida base}};
+
+\node[measure] (m3) at (12,0) {\texttt{[Pct\_I2]}\\{\tiny calcula sobre fct\_Sisben}};
+
+\node[visual] (v1) at (6.5,-2) {Matriz / Visual\\{\tiny muestra el valor}};
+
+\draw[arr] (s1) -- (m1);
+\draw[arr] (m1) -- (m2);
+\draw[arr] (m2) -- (m3);
+\draw[arr, bend right=20] (m3) to (v1);
+\draw[arr, bend left=20] (m1) to (v1);
+
+\draw[dashed, gray!60] (6.5, 0.8) -- (6.5,-1.3) node[right, font=\scriptsize, gray]{flujo de evaluaci\'on};
+
+\end{tikzpicture}
+
+\vspace{0.3cm}
+{\footnotesize La tabla de par\'ametro \textbf{nunca se une a fct\_Sisben}. Solo proporciona el contexto de filtro que la medida \texttt{SELECTEDVALUE()} captura en cada evaluaci\'on.}
+\end{frame}
+
+\begin{frame}{?`Por qu\'e no hacer columnas directamente en la matriz?}
+
+\begin{columns}
+\column{0.48\textwidth}
+\begin{exampleblock}{Sin tablas de par\'ametro (opci\'on alternativa)}
+\begin{itemize}\footnotesize
+  \item Se agregar\'ian directamente las columnas \texttt{I1}, \texttt{I2}\ldots \texttt{I15} a la matriz
+  \item El usuario no puede cambiar qu\'e columnas ve
+  \item La matriz se vuelve \textbf{horizontal e ilegible} (15 columnas)
+  \item No es posible comparar un indicador vs. municipios en filas
+  \item Imposible construir visuals din\'amicos con un solo KPI cambiante
+\end{itemize}
+\end{exampleblock}
+
+\column{0.48\textwidth}
+\begin{alertblock}{Con tablas de par\'ametro (opci\'on implementada)}
+\begin{itemize}\footnotesize
+  \item[\yes] La matriz siempre tiene \textbf{una sola columna de valor}
+  \item[\yes] El usuario elige qu\'e indicador ver con el slicer
+  \item[\yes] Compatible con cualquier combinaci\'on de filtros geogr\'aficos
+  \item[\yes] Permite comparar municipios (filas) vs. un indicador a la vez
+  \item[\yes] Es el patr\'on est\'andar recomendado por Microsoft para matrices din\'amicas
+\end{itemize}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\section{Organizaci\'on de Medidas}
+
+\begin{frame}{Jerarqu\'ia de carpetas (Display Folders)}
+\begin{columns}
+\column{0.50\textwidth}
+\begin{tikzpicture}[
+  folder/.style={draw=gray!60, fill=gray!8, rounded corners=2pt,
+                 font=\scriptsize, inner sep=4pt, minimum width=4.8cm, align=left},
+  sub/.style={draw=blue!30, fill=blue!5, rounded corners=2pt,
+              font=\scriptsize, inner sep=3pt, minimum width=4.3cm, align=left},
+  node distance=0.18cm
+]
+\node[folder](f1){IPM \quad{\tiny ($\sim$40 medidas)}};
+\node[sub, below=0.1cm of f1, xshift=0.3cm](f1a){Dimensiones IPM \quad{\tiny (15)}};
+\node[folder, below=0.22cm of f1a, xshift=-0.3cm](f2){Vivienda \quad{\tiny ($\sim$30)}};
+\node[sub, below=0.1cm of f2, xshift=0.3cm](f2a){Privaciones \quad{\tiny (10)}};
+\node[sub, below=0.1cm of f2a](f2b){Eventos Naturales \quad{\tiny (11)}};
+\node[folder, below=0.22cm of f2b, xshift=-0.3cm](f3){Hogares \quad{\tiny (16)}};
+\node[sub, below=0.1cm of f3, xshift=0.3cm](f3a){Gasto \quad{\tiny (17)}};
+\node[folder, below=0.22cm of f3a, xshift=-0.3cm](f4){Demograf\'ia \quad{\tiny ($\sim$30)}};
+\node[folder, below=0.22cm of f4](f5){Selectores \quad{\tiny (12)}};
+\node[folder, below=0.22cm of f5](f6){Calidad Datos \quad{\tiny (13)}};
+\node[folder, below=0.22cm of f6](f7){UX \quad{\tiny (6)}};
+\end{tikzpicture}
+
+\column{0.46\textwidth}
+\begin{block}{Criterio de clasificaci\'on}
+\begin{description}\footnotesize
+  \item[\textbf{IPM}] \'Indices, incidencias, rankings, variaciones, textos
+  \item[\textbf{Vivienda}] Condiciones f\'isicas, privaciones, riesgo
+  \item[\textbf{Hogares}] Bienes, servicios, gasto del hogar
+  \item[\textbf{Demograf\'ia}] Conteos, grupos SISBEN, pir\'amides
+  \item[\textbf{Selectores}] Medidas que dependen de una tabla de par\'ametro
+  \item[\textbf{Calidad}] Validaci\'on, matrices de control
+  \item[\textbf{UX}] T\'itulos din\'amicos, colores, etiquetas
+\end{description}
+\end{block}
+
+\vspace{0.2cm}
+\footnotesize Las medidas de las tablas de par\'ametro se clasifican en \textbf{Selectores}, indicando expl\'icitamente que su valor depende de un slicer externo.
+\end{columns}
+\end{frame}
+
+\section{Resumen y Justificaci\'on}
+
+\begin{frame}{Resumen: decisiones de dise\~no justificadas}
+
+\begin{block}{Principios aplicados}
+\begin{tabular}{p{5.5cm} p{6cm}}
+\toprule
+\textbf{Decisi\'on} & \textbf{Justificaci\'on} \\
+\midrule
+Esquema estrella con 6 relaciones N:1 & M\'inimo de relaciones necesarias; rendimiento \'optimo en VertiPaq \\
+\addlinespace
+10 tablas de par\'ametro desconectadas & Patr\'on est\'andar para matrices din\'amicas; evita proliferaci\'on de visuals \\
+\addlinespace
+\texttt{SWITCH(SELECTEDVALUE())} como motor & Evaluaci\'on diferida; solo se computa el c\'alculo seleccionado \\
+\addlinespace
+203 medidas en 7 carpetas jer\'arquicas & Mantenibilidad; navegaci\'on clara en Power BI Desktop \\
+\addlinespace
+\texttt{fct\_Sisben} como nombre can\'onico & Convenci\'on \texttt{fct\_/dim\_} est\'andar de modelado tabular \\
+\bottomrule
+\end{tabular}
+\end{block}
+
+\begin{exampleblock}{Conclusi\'on}
+Las tablas aisladas \textbf{no son un error de dise\~no}: son el mecanismo que hace posible que cada visual del tablero sea interactivo, flexible y din\'amico, sin duplicar c\'odigo DAX ni multiplicar el n\'umero de visuals necesarios.
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Mapa completo del modelo}
+\centering
+\begin{tikzpicture}[
+  fact/.style={rectangle, draw=blue!60!black, fill=blue!15, rounded corners=3pt,
+               minimum width=2.5cm, minimum height=0.75cm, font=\scriptsize\bfseries},
+  dim/.style={rectangle, draw=green!50!black, fill=green!10, rounded corners=3pt,
+              minimum width=2.2cm, minimum height=0.6cm, font=\tiny},
+  slicer/.style={rectangle, draw=orange!60!black, fill=orange!10, rounded corners=3pt,
+                 minimum width=2.2cm, minimum height=0.55cm, font=\tiny},
+  arr/.style={-{Stealth[length=4pt]}, thick, gray!70},
+  node distance=0.25cm
+]
+% Fact tables
+\node[fact] (fct) at (0,0) {fct\_Sisben};
+\node[fact] (pop) at (0,-2.2) {Poblacion\_DANE};
+
+% Connected dims
+\node[dim] (mpio) at (3.8, 0.8) {dim\_municipios};
+\node[dim] (est) at (3.8, 0.0) {Dim\_Estado\_DNP};
+\node[dim] (anio) at (3.8, -0.8) {Dim\_Anios};
+\node[dim] (rango) at (3.8, -2.2) {Dim\_Rango\_Edad};
+
+% Arrows
+\draw[arr] (fct) -- (mpio);
+\draw[arr] (fct) -- (est);
+\draw[arr] (fct) -- (anio);
+\draw[arr] (pop) -- (mpio);
+\draw[arr] (pop) -- (anio);
+\draw[arr] (pop) -- (rango);
+
+% Slicer tables
+\node[slicer] (s1) at (-4.2, 1.8) {Nivel\_Sisben};
+\node[slicer] (s2) at (-4.2, 1.1) {Dim\_Privacion};
+\node[slicer] (s3) at (-4.2, 0.4) {Dim\_IPM\_Dimension};
+\node[slicer] (s4) at (-4.2,-0.3) {Dim\_Evento};
+\node[slicer] (s5) at (-4.2,-1.0) {Dim\_Indicador\_Hogar};
+\node[slicer] (s6) at (-4.2,-1.7) {Dim\_Bloque\_Sanitario};
+\node[slicer] (s7) at (-4.2,-2.4) {Dim\_Categoria\_Vivienda};
+\node[slicer] (s8) at (-4.2,-3.1) {Selector\_Vivienda};
+\node[slicer] (s9) at (-4.2,-3.8) {Tabla\_Ind\_Vivienda};
+
+% Dashed connection label
+\draw[dashed, orange!50, very thick] (-2.8,2.2) -- (-2.8,-4.1);
+\node[rotate=90, font=\tiny, orange!70!black] at (-2.5,-1.0) {sin relaci\'on -- solo slicer};
+
+% Legend
+\node[fact, minimum width=1.5cm, minimum height=0.45cm, font=\tiny] at (1.2,-4.3) {};
+\node[font=\tiny, right] at (2.1,-4.3) {Tabla de hechos};
+\node[dim, minimum width=1.5cm, minimum height=0.45cm, font=\tiny] at (4.0,-4.3) {};
+\node[font=\tiny, right] at (4.9,-4.3) {Dimensi\'on};
+\node[slicer, minimum width=1.5cm, minimum height=0.45cm, font=\tiny] at (6.8,-4.3) {};
+\node[font=\tiny, right] at (7.7,-4.3) {Tabla de par\'ametro};
+
+\end{tikzpicture}
+\end{frame}
+
+\end{document}

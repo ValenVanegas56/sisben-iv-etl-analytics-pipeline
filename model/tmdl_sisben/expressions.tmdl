@@ -1,0 +1,42 @@
+expression 'Archivo de ejemplo' =
+		let
+		    Origen = Folder.Files("Y:\Prácticas_Valen_Vanegas - 2026-1\1.Sisbén\Base_Sisben_Anonimizada\1.Anonimizados"),
+		    Navegación1 = Origen{0}[Content]
+		in
+		    Navegación1
+	lineageTag: 27988277-e59e-46bc-864f-d27313efec8a
+	queryGroup: 'Transformar archivo de 1 Anonimizados\Consultas auxiliares'
+
+	annotation PBI_ResultType = Binary
+
+expression Parámetro1 = #"Archivo de ejemplo" meta [IsParameterQuery=true, BinaryIdentifier=#"Archivo de ejemplo", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: b4466ebd-1eda-4e9b-8e50-26bae16f4d1d
+	queryGroup: 'Transformar archivo de 1 Anonimizados\Consultas auxiliares'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Transformar archivo de ejemplo' =
+		let
+		    Origen = Csv.Document(Parámetro1,[Delimiter=";", Columns=147, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true])
+		in
+		    #"Encabezados promovidos"
+	lineageTag: cd9a22ca-b155-4dc7-87d7-ce5a0430133a
+	queryGroup: 'Transformar archivo de 1 Anonimizados'
+
+	annotation PBI_ResultType = Table
+
+expression 'Transformar archivo' =
+		let
+		    Source = (Parámetro1 as binary) => let
+		    Origen = Csv.Document(Parámetro1,[Delimiter=";", Columns=147, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true])
+		in
+		    #"Encabezados promovidos"
+		in
+		    Source
+	lineageTag: 1e1488d3-b87c-4891-a205-b112a91a93d2
+	queryGroup: 'Transformar archivo de 1 Anonimizados\Consultas auxiliares'
+
+	annotation PBI_ResultType = Function
+

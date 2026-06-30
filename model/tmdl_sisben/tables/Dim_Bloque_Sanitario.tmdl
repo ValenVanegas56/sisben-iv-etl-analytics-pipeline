@@ -1,0 +1,49 @@
+table Dim_Bloque_Sanitario
+	lineageTag: c9971671-403c-4290-971c-6de6bb2b2940
+
+	measure Variable_Sanitaria_Activa =
+			
+			SWITCH(
+			    SELECTEDVALUE(Dim_Bloque_Sanitario[Bloque]),
+			
+			    "Tipo de sanitario",
+			        SELECTEDVALUE(fct_Sisben[tip_sanitario]),
+			
+			    "Ubicación del sanitario",
+			        SELECTEDVALUE(fct_Sisben[tip_ubi_sanitario]),
+			
+			    "Uso del sanitario",
+			        SELECTEDVALUE(fct_Sisben[tip_uso_sanitario]),
+			
+			    "Origen del agua",
+			        SELECTEDVALUE(fct_Sisben[tip_origen_agua])
+			)
+		formatString: 0
+
+		displayFolder: "Selectores"
+		lineageTag: f854c529-7837-4bea-bb39-d3632c33d909
+
+	column Bloque
+		lineageTag: dd6fabd3-d080-4619-a63b-6392571b7a07
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Bloque]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Bloque_Sanitario = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Bloque", STRING,
+				{
+				    {"Tipo de sanitario"},
+				    {"Ubicación del sanitario"},
+				    {"Uso del sanitario"},
+				    {"Origen del agua"}
+				}
+				)
+
+	annotation PBI_Id = f4ad7ffba59a4837bf717e496542adcf
+

@@ -1,0 +1,164 @@
+table Dim_Categoria_Vivienda
+	lineageTag: 893a6008-545c-41d3-b105-52ef62412e00
+
+	measure Valor_Matriz_Vivienda =
+			
+			VAR cat = SELECTEDVALUE(Dim_Categoria_Vivienda[Categoria])
+			
+			VAR valor_categoria =
+			SWITCH(
+			TRUE(),
+			
+			cat = "Alfombra o tapete, mármol, parqué, madera pulida y lacada",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_pisos] = 1),
+			
+			cat = "Baldosa, vinilo, tableta, ladrillo",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_pisos] = 2),
+			
+			cat = "Cemento, gravilla",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_pisos] = 3),
+			
+			cat = "Madera burda, madera en mal estado, tabla, tablón",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_pisos] = 4),
+			
+			cat = "Tierra o arena",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_pisos] = 5),
+			
+			cat = "Otro",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_pisos] = 6),
+			
+			cat = "Sin paredes",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 0),
+			
+			cat = "Bloque, ladrillo, piedra, madera pulida",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 1),
+			
+			cat = "Tapia pisada o adobe",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 2),
+			
+			cat = "Bahareque",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 3),
+			
+			cat = "Material prefabricado",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 4),
+			
+			cat = "Madera burda, tabla o tablón",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 5),
+			
+			cat = "Guadua, caña u otro vegetal",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 6),
+			
+			cat = "Zinc, tela, lona, cartón, desechos",
+			CALCULATE([Total_Viviendas],fct_Sisben[tip_mat_paredes] = 7),
+			
+			cat = "Sin energía", [Pct_Sin_Energia],
+			cat = "Sin gas", [Pct_Sin_Gas],
+			cat = "Sin acueducto", [Pct_Sin_Acueducto],
+			cat = "Sin alcantarillado", [Pct_Sin_Alcantarillado],
+			cat = "Sin recolección", [Pct_Sin_Recoleccion]
+			)
+			
+			VAR total_subregion =
+			CALCULATE(
+			[Total_Viviendas],
+			ALLEXCEPT(
+			fct_Sisben,
+			'dim_municipios'[subregion]
+			)
+			)
+			
+			VAR resultado =
+			IF(
+			cat IN {
+			"Sin energía",
+			"Sin gas",
+			"Sin acueducto",
+			"Sin alcantarillado",
+			"Sin recolección"
+			},
+			valor_categoria,
+			DIVIDE(valor_categoria,total_subregion)
+			)
+			
+			RETURN
+			IF(HASONEVALUE(Dim_Categoria_Vivienda[Categoria]),
+			resultado,
+			AVERAGEX(
+			VALUES(Dim_Categoria_Vivienda[Categoria]),
+			CALCULATE(resultado)
+			)
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Selectores"
+		lineageTag: 79b2bfc2-6d41-40c7-ae66-51e162d66b15
+
+	measure Filtro_Tipo_Vivienda =
+			
+			VAR tiposSeleccionados =
+			VALUES(Selector_Vivienda[Tipo])
+			
+			VAR tipoFila =
+			MAX(Dim_Categoria_Vivienda[Tipo])
+			
+			RETURN
+			IF(
+			    tipoFila IN tiposSeleccionados,
+			    1,
+			    0
+			)
+		formatString: 0
+
+		displayFolder: "Selectores"
+		lineageTag: 5f2aee76-85ad-4b54-9265-ff1eb8f4568d
+
+	column Categoria
+		lineageTag: 882f18fa-14a7-4903-8fda-97bd2d3b973f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Categoria]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		lineageTag: 76dfe65a-ab11-4fcf-a9fc-12dc75482c37
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Tipo]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Categoria_Vivienda = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				"Categoria", STRING,
+				"Tipo", STRING,
+				{
+				{"Alfombra o tapete","Pisos"},
+				{"Baldosa, vinilo, tableta, ladrillo","Pisos"},
+				{"Madera pulida o laminada","Pisos"},
+				{"Cemento o gravilla","Pisos"},
+				{"Madera burda, tabla o tablón","Pisos"},
+				{"Tierra o arena","Pisos"},
+				{"Sin paredes","Paredes"},
+				{"Bloque, ladrillo, piedra, madera pulida","Paredes"},
+				{"Tapia pisada o adobe","Paredes"},
+				{"Bahareque","Paredes"},
+				{"Material prefabricado","Paredes"},
+				{"Madera burda, tabla o tablón","Paredes"},
+				{"Guadua, caña u otro vegetal","Paredes"},
+				{"Zinc, tela, lona, cartón, desechos","Paredes"},
+				{"Paredes inadecuadas","Servicios"},
+				{"Pisos inadecuados","Servicios"},
+				{"Sin energía","Servicios"},
+				{"Sin gas","Servicios"},
+				{"Sin acueducto","Servicios"},
+				{"Sin alcantarillado","Servicios"},
+				{"Sin recolección","Servicios"}
+				}
+				)
+
+	annotation PBI_Id = 8f49ad7e656745eca018c3504cc15dba
+

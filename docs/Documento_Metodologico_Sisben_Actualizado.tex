@@ -1,0 +1,202 @@
+\documentclass[12pt, a4paper]{article}
+
+% Paquetes
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{amsmath}
+\usepackage{xcolor}
+
+\geometry{left=2.5cm, right=2.5cm, top=3cm, bottom=3cm}
+
+% Colores corporativos
+\definecolor{verde}{RGB}{34, 139, 34}
+\definecolor{azul}{RGB}{0, 82, 165}
+\definecolor{grisclaro}{RGB}{245, 245, 245}
+
+% Estilos de caja
+\newmdenv[
+  linecolor=azul,
+  backgroundcolor=azul!5,
+  linewidth=1.5pt,
+  roundcorner=4pt,
+  leftmargin=0,
+  rightmargin=0,
+  innerleftmargin=10pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt
+]{notaazul}
+
+% Encabezado y pie
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small Observatorio Departamental Sisbén --- Antioquia}
+\lhead{\small Documento Metodológico}
+\rfoot{\small Pág. \thepage}
+\lfoot{\small Coordinación Departamental del Sisbén}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\color{azul}\rule{\linewidth}{2pt}}\\[0.8em]
+    {\huge \textbf{Documento Metodológico}}\\[0.5em]
+    {\LARGE \textbf{Modelo Analítico de Pobreza, Vulnerabilidad, Condiciones de Vida y Calidad de los Datos}}\\[0.8em]
+    {\large \textbf{Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales — Sisbén IV}}\\[0.5em]
+    {\Large Antioquia, 2021–2026}\\[0.8em]
+    {\color{azul}\rule{\linewidth}{2pt}}\\[2cm]
+    
+    {\large \textbf{Coordinación Departamental del Sisbén}}\\
+    {\normalsize Gobernación de Antioquia}\\
+    \vspace{1.5cm}
+    {\normalsize \today}\\
+\end{titlepage}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+% ------------------------------------------------------------------
+\section*{Ficha Técnica}
+\addcontentsline{toc}{section}{Ficha Técnica}
+
+\begin{longtable}{@{}p{5cm}p{10cm}@{}}
+\toprule
+\textbf{Campo} & \textbf{Detalle} \\
+\midrule
+\endhead
+\textbf{Nombre del producto} & Modelo Analítico del Sisbén IV --- Antioquia \\
+\textbf{Período de referencia} & 2021–2026 (cortes anuales) \\
+\textbf{Periodicidad} & Anual / Dinámica según actualización \\
+\textbf{Cobertura geográfica} & Departamento de Antioquia, 125 municipios \\
+\textbf{Fuentes primarias} & 1. DNP: Bases anonimizadas del Sisbén IV \newline 2. DANE: Proyecciones de población municipal \\
+\textbf{Unidad de observación} & Persona encuestada / Hogar / Vivienda \\
+\textbf{Volumen de registros} & \(\approx\)25 millones de registros individuales (acumulados) \\
+\textbf{Plataforma de análisis} & Microsoft Power BI Desktop (Modelo semántico tabular optimizado) \\
+\textbf{Procesamiento (ETL)} & Python 3.x --- Apache Parquet (Snappy), procesamiento por lotes (\textit{Chunking}) \\
+\textbf{Clasificación} & Información pública --- datos anonimizados \\
+\bottomrule
+\end{longtable}
+
+% ------------------------------------------------------------------
+\section{Presentación}
+
+Este documento sintetiza la arquitectura y la fundamentación del \textbf{Modelo Analítico del Sisbén IV para Antioquia}. Más que un simple tablero de visualización, lo que hemos consolidado es un sistema robusto de procesamiento de datos gobernado por principios de optimización técnica y rigor metodológico. 
+
+En esta actualización, hemos integrado al modelo base no solo las mediciones tradicionales de pobreza y vulnerabilidad territorial, sino un componente crítico de \textbf{Auditoría y Calidad de la Información}, acompañado de la \textbf{Base de Datos de Población (DANE)} para contrastar la cobertura real del sistema frente a las proyecciones demográficas. Además, se reestructuró por completo el proceso de ingesta de datos (ETL) migrando a Python y Parquet, reduciendo los tiempos de carga en un 70\% y estabilizando el entorno analítico en Power BI. El objetivo sigue siendo que el ecosistema técnico soporte la toma de decisiones basada en evidencia sólida, limpia y auditable.
+
+% ------------------------------------------------------------------
+\section{Marco Conceptual}
+
+\subsection{El Sisbén IV como instrumento de focalización}
+El Sisbén IV clasifica a cada persona en grupos discretos (A, B, C, D) mediante un índice de condiciones de vida. La encuesta recoge información individual y del hogar. 
+\begin{itemize}
+    \item \textbf{Grupo A (A1 a A5):} Pobreza extrema.
+    \item \textbf{Grupo B (B1 a B7):} Pobreza moderada.
+    \item \textbf{Grupo C (C1 a C18):} Vulnerabilidad (sobre la línea de pobreza, pero en riesgo).
+    \item \textbf{Grupo D (D1 a D21):} Población no pobre, no vulnerable.
+\end{itemize}
+
+\subsection{Índice de Pobreza Multidimensional (IPM)}
+Basado en la metodología Alkire-Foster (AF) y evaluando 15 indicadores en 5 dimensiones (Educación, Niñez y juventud, Trabajo, Salud, Vivienda y servicios). El modelo no recalcula el IPM, sino que lee los resultados oficiales precomputados por el DNP (\texttt{H\_5} e \texttt{I1} a \texttt{I15}), asegurando consistencia absoluta con la política nacional.
+
+% ------------------------------------------------------------------
+\section{Fuentes de Datos}
+
+El ecosistema actual se alimenta de dos grandes universos de datos que se cruzan en el modelo semántico:
+
+\subsection{Bases de Datos Anonimizadas Sisbén IV (DNP)}
+Fuente primaria que contiene la información microeconómica y sociodemográfica de \(\approx\)25 millones de registros históricos. Incluye variables de control de calidad institucional introducidas recientemente:
+\begin{itemize}
+    \item \textbf{\texttt{estado}:} Validaciones propias del DNP (fallecidos, inconsistencias en revisión, etc.).
+    \item \textbf{\texttt{marca}:} Estado de publicación (en verificación a nivel local o nacional).
+\end{itemize}
+
+\subsection{Base de Proyecciones de Población (DANE)}
+Para evaluar qué tan representativo es el Sisbén IV en cada municipio, integramos la \textbf{base de población oficial del DANE}. Esto nos permite cruzar el número de personas registradas en el Sisbén contra la población total proyectada, revelando la \textbf{Tasa de Cobertura} del instrumento. Este cruce es fundamental para visibilizar posibles subregistros o sobre-registros atípicos en territorios particulares.
+
+% ------------------------------------------------------------------
+\section{Proceso de Extracción, Transformación y Carga (ETL)}
+
+Debido a su masividad (\(\ge\) 25M de filas), cargar el archivo plano crudo en Power BI generaba cuellos de botella severos, desbordaba la memoria RAM (\textgreater 18 GB pico) y tardaba más de 60 minutos en procesarse por el elevado uso de columnas calculadas DAX.
+
+\subsection{Migración a Python y Apache Parquet}
+Se rediseñó el proceso implementando un script en Python que ejecuta el ETL en modo fragmentado (\textit{chunking} de 150.000 filas). El output es un archivo \textbf{Apache Parquet (con compresión Snappy)}, lo que brinda tasas de lectura excepcionales en Power BI.
+
+\subsection{Pre-cálculo de 26 Columnas Analíticas (Upstream)}
+Se mitigó el estrés del motor VertiPaq trasladando 26 transformaciones complejas (que antes vivían en DAX) directamente al procesamiento de Python. Las conversiones de códigos numéricos a variables categóricas de texto (ej. material de pisos, saneamiento), y construcciones lógicas como el rango etario y el nivel de hacinamiento ahora están inyectadas de origen.
+
+\begin{notaazul}
+\textbf{Nota Técnica:} Para detalles exhaustivos de código, sintaxis empleada y el procedimiento de replicabilidad línea por línea, remítase al \textit{Manual Técnico de Replicabilidad ETL - Sisbén Antioquia}. Se optó por no incluir el código de los scripts en este documento para priorizar la conceptualización metodológica.
+\end{notaazul}
+
+% ------------------------------------------------------------------
+\section{Auditoría de Datos y Matrices de Calidad}
+
+Un pilar fundamental de la última actualización fue el despliegue de mecanismos nativos de \textbf{Data Quality}. Creamos tres matrices analíticas en DAX para identificar de forma proactiva debilidades o errores en el levantamiento local de los datos:
+
+\begin{itemize}
+    \item \textbf{Matriz 1: Valores Atípicos y Nulos (\textit{Data Completeness}).} Evalúa sistemáticamente la ausencia de información en variables estandarizadas, asegurando que el modelo trate adecuadamente los blancos (\textit{blanks}) y los códigos que representan ``Sin información''.
+    \item \textbf{Matriz 2: Inconsistencias Multivariadas (\textit{Logical Consistency}).} Rastrea falacias semánticas en la encuesta. Por ejemplo, registros de individuos menores a cierta edad declarados como Jefes de Hogar, o viviendas que reportan ser apartamentos pero con materiales estructurales inconsistentes.
+    \item \textbf{Matriz 3: Contraste Poblacional y Cobertura.} Cruza los hallazgos demográficos del Sisbén versus las proyecciones del DANE. Permite a los formuladores de política pública en Antioquia saber en qué zonas la presencia del Sisbén es insuficiente, direccionando operativamente equipos de encuestadores.
+\end{itemize}
+
+% ------------------------------------------------------------------
+\section{Arquitectura del Modelo Semántico (Power BI)}
+
+El modelo semántico adopta un \textbf{esquema en estrella (Star Schema) estricto}, diseñado exclusivamente para maximizar el rendimiento del motor VertiPaq.
+
+\begin{itemize}
+    \item \textbf{Tabla de Hechos Central:} \texttt{1 Anonimizados (2) / Fact\_Sisben}, conectada vía el código DANE del municipio (\texttt{cod\_mpio} a 5 dígitos).
+    \item \textbf{Dimensiones Fuertes:} Incluyen \texttt{dim\_municipios} para jerarquías geográficas (Subregión, PDET, ZOMAC).
+    \item \textbf{Descarte de Tablas Desconectadas:} Se eliminaron las ``dimensiones islas'' que forzaban el uso de sentencias DAX costosas como \texttt{TREATAS}. Ahora los filtros discurren de forma natural a través de las relaciones del modelo.
+\end{itemize}
+
+Esta depuración estructural explica cómo la interacción en el tablero es ahora virtualmente instantánea.
+
+% ------------------------------------------------------------------
+\section{Resumen de Variables e Indicadores Clave}
+
+El tablero expone decenas de medidas consolidadas; sin embargo, operan bajo unidades de análisis diferenciadas para evitar doble contabilización:
+
+\begin{itemize}
+    \item \textbf{Nivel Persona (\texttt{COUNTROWS}):} Incidencia IPM, perfil demográfico, pirámide de edades.
+    \item \textbf{Nivel Hogar (\texttt{tip\_parentesco = 1}):} Gasto autodeclarado del hogar, análisis de jefatura femenina.
+    \item \textbf{Nivel Vivienda (\texttt{tip\_parentesco = 1 AND ide\_hogar = 1}):} Déficit cualitativo, acceso a servicios públicos (Acueducto, Energía), y recurrencia de afectación por Desastres Naturales.
+\end{itemize}
+
+Además, el modelo ofrece **Rankings Territoriales Dinámicos**, identificando qué municipios traccionan el mayor volumen o la mayor incidencia de pobreza multidimensional en contextos filtrados por año o subregión.
+
+% ------------------------------------------------------------------
+\section{Limitaciones de la Fuente}
+
+\begin{enumerate}
+    \item \textbf{Naturaleza Autodeclarada:} Particularmente en los campos de gastos e ingresos, pueden existir subestimaciones o sesgos de quien responde la encuesta.
+    \item \textbf{Sesgo de Cobertura:} La base captura a quienes acceden al SISBEN. Existen bolsones de extrema pobreza (poblaciones nómadas, zonas rurales dispersas de muy difícil acceso) que podrían no estar reflejados. Para visibilizar este fenómeno creamos la \textbf{Matriz 3 (Cobertura)}.
+    \item \textbf{Eventos Naturales como Stock, no Flujo:} La pregunta sobre eventos catastróficos refleja afectación histórica acumulada sobre esa vivienda ("ha sido afectada por inundación"), mas no una cuantificación financiera del daño o la fecha precisa del suceso.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Referencias}
+
+\begin{itemize}
+    \item Alkire, S., \& Foster, J. (2011). Counting and multidimensional poverty measurement. \textit{Journal of Public Economics}.
+    \item DANE. (2018). \textit{Índice de Pobreza Multidimensional — Metodología}. Departamento Administrativo Nacional de Estadística. Bogotá.
+    \item DNP. (2022). \textit{Manual Operativo del Sisbén IV}. Departamento Nacional de Planeación. Bogotá.
+    \item Gobernación de Antioquia. (2025). \textit{División Político-Administrativa de Antioquia — Divpola}.
+\end{itemize}
+
+\end{document}

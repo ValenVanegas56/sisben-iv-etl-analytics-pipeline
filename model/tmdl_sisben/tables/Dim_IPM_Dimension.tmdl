@@ -1,0 +1,103 @@
+table Dim_IPM_Dimension
+	lineageTag: 194d11c8-d03e-4a7b-86a4-fab876c2aeeb
+
+	measure Pct_Privacion_Seleccionada =
+			VAR Val = SWITCH(
+			    SELECTEDVALUE(Dim_IPM_Dimension[Dimension_IPM]),
+			    "Bajo logro educativo", [Pct_I1_BajoLogroEducativo],
+			    "Analfabetismo", [Pct_I2_Analfabetismo],
+			    "Inasistencia escolar", [Pct_I3_InasistenciaEscolar],
+			    "Rezago escolar", [Pct_I4_RezagoEscolar],
+			    "Barreras primera infancia", [Pct_I5_BarrerasCuidadoInfancia],
+			    "Trabajo infantil", [Pct_I6_TrabajoInfantil],
+			    "Desempleo larga duraciÃ³n", [Pct_I7_DesempleoLargaDuracion],
+			    "Trabajo informal", [Pct_I8_TrabajoInformal],
+			    "Sin aseguramiento en salud", [Pct_I9_SinAseguramientoSalud],
+			    "Barreras acceso salud", [Pct_I10_BarreraAccesoServiciosSalud],
+			    "Sin acceso a agua", [Pct_I11_SinAccesoFuentesAguaMejorada],
+			    "EliminaciÃ³n inadecuada de excretas", [Pct_I12_InadecuadaEliminacionExcretas],
+			    "Material inadecuado de pisos", [Pct_I13_MaterialInadecuadoPisos],
+			    "Material inadecuado de paredes", [Pct_I14_MaterialInadecuadoParedes],
+			    "Hacinamiento crÃ­tico", [Pct_I15_HacinamientoCritico],
+			    BLANK()
+			)
+			RETURN
+			IF(
+			    HASONEVALUE(Dim_IPM_Dimension[Dimension_IPM]),
+			    Val,
+			    AVERAGEX(
+			        VALUES(Dim_IPM_Dimension[Dimension_IPM]),
+			        SWITCH(
+			            Dim_IPM_Dimension[Dimension_IPM],
+			            "Bajo logro educativo", [Pct_I1_BajoLogroEducativo],
+			            "Analfabetismo", [Pct_I2_Analfabetismo],
+			            "Inasistencia escolar", [Pct_I3_InasistenciaEscolar],
+			            "Rezago escolar", [Pct_I4_RezagoEscolar],
+			            "Barreras primera infancia", [Pct_I5_BarrerasCuidadoInfancia],
+			            "Trabajo infantil", [Pct_I6_TrabajoInfantil],
+			            "Desempleo larga duraciÃ³n", [Pct_I7_DesempleoLargaDuracion],
+			            "Trabajo informal", [Pct_I8_TrabajoInformal],
+			            "Sin aseguramiento en salud", [Pct_I9_SinAseguramientoSalud],
+			            "Barreras acceso salud", [Pct_I10_BarreraAccesoServiciosSalud],
+			            "Sin acceso a agua", [Pct_I11_SinAccesoFuentesAguaMejorada],
+			            "EliminaciÃ³n inadecuada de excretas", [Pct_I12_InadecuadaEliminacionExcretas],
+			            "Material inadecuado de pisos", [Pct_I13_MaterialInadecuadoPisos],
+			            "Material inadecuado de paredes", [Pct_I14_MaterialInadecuadoParedes],
+			            "Hacinamiento crÃ­tico", [Pct_I15_HacinamientoCritico],
+			            BLANK()
+			        )
+			    )
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Selectores"
+		lineageTag: 0782ed1d-5431-47af-a348-6ffd5f81ed3e
+
+	column Dimension_IPM
+		lineageTag: b3321e21-390c-4b80-a168-f21bc43944d7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Dimension_IPM]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Categoria
+		lineageTag: 17360d72-b026-4715-94c8-6b59f4d14bf7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Categoria]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_IPM_Dimension = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Dimension_IPM", STRING,
+				    "Categoria", STRING,
+				{
+				    {"Bajo logro educativo", "Educación"},
+				    {"Analfabetismo", "Educación"},
+				    {"Inasistencia escolar", "Educación"},
+				    {"Rezago escolar", "Educación"},
+				
+				    {"Barreras primera infancia", "Niñez y juventud"},
+				    {"Trabajo infantil", "Niñez y juventud"},
+				
+				    {"Desempleo larga duración", "Trabajo"},
+				    {"Trabajo informal", "Trabajo"},
+				
+				    {"Sin aseguramiento en salud", "Salud"},
+				    {"Barreras acceso salud", "Salud"},
+				
+				    {"Sin acceso a agua", "Vivienda y servicios"},
+				    {"Eliminación inadecuada de excretas", "Vivienda y servicios"},
+				    {"Material inadecuado de pisos", "Vivienda y servicios"},
+				    {"Material inadecuado de paredes", "Vivienda y servicios"},
+				    {"Hacinamiento crítico", "Vivienda y servicios"}
+				}
+				)
+
+	annotation PBI_Id = 5e5d8e24ba304d75961f9a35cfde6f9c
+

@@ -1,0 +1,3931 @@
+table fct_Sisben
+	lineageTag: a8fd6c84-3e1e-4fe2-9812-65295116097d
+
+	measure 'Hogares Pobres' =
+			
+			CALCULATE(
+			    [Hogares],
+			    fct_Sisben[H_5]= 1
+			)
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: e3950a3b-64ab-44c1-92b7-e2ea1a850057
+
+	measure Personas = COUNTROWS(fct_Sisben)
+		formatString: #,0
+
+		displayFolder: "Demografia"
+
+		lineageTag: 4a73fa19-25c2-4125-9310-3f24991eaec7
+
+	measure 'Total Filas' = COUNTROWS(fct_Sisben)
+		formatString: 0
+		isHidden
+
+		displayFolder: "Demografia"
+
+		lineageTag: c98c5c75-f664-445c-8db3-4ad9de3bafc7
+
+	measure 'Total Únicos' = DISTINCTCOUNT(fct_Sisben[orden_clasificacion])
+
+		displayFolder: "Demografia"
+
+		lineageTag: 53aafd94-5892-4fe6-8909-7194b2f1730b
+
+	measure 'Personas IPM' =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    LEFT(TRIM(fct_Sisben[H_5]),1) = "1"
+			)
+		formatString: #,0
+
+		displayFolder: "IPM"
+
+		lineageTag: 12a830d5-cc35-431d-bd42-29e44828c82c
+
+	measure Porcentaje_IPM =
+			
+			DIVIDE([Personas IPM], [Personas], 0)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM"
+
+		lineageTag: 878d1d13-5c5b-4383-baf6-b331fc1eca52
+
+	measure personas_A =
+			
+			CALCULATE(
+			[Personas],
+			fct_Sisben[grupo_sisben] = "A"
+			)
+		formatString: 0
+
+		displayFolder: "Demografia"
+
+		lineageTag: d4e31e13-9c86-40ad-a522-71298f644063
+
+	measure personas_B =
+			
+			CALCULATE(
+			[Personas],
+			fct_Sisben[grupo_sisben] = "B"
+			)
+		formatString: 0
+
+		displayFolder: "Demografia"
+
+		lineageTag: a119a965-4302-4f7e-beed-3fbaaf173586
+
+	measure personas_C =
+			
+			CALCULATE(
+			[Personas],
+			fct_Sisben[grupo_sisben] = "C"
+			)
+		formatString: 0
+
+		displayFolder: "Demografia"
+
+		lineageTag: d5e3fbdc-1466-4ab5-ad21-c22fcdd990a4
+
+	measure personas_D
+
+		displayFolder: "Demografia"
+
+		lineageTag: 4ec8d843-645a-4066-8228-aa1a984c5bae
+
+	measure percen_A = ```
+			
+			DIVIDE([personas_A], [Personas]) 
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+
+		lineageTag: 9ba53557-f93c-4cc7-b10e-51a9565994aa
+
+	measure percen_B =
+			
+			DIVIDE([personas_B], [Personas])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+
+		lineageTag: fa468064-52b4-4272-8c7c-e4350f073de1
+
+	measure percen_C =
+			
+			DIVIDE([personas_C], [Personas])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+
+		lineageTag: 15b78ada-98c0-42a1-bfbb-fbed385de5e2
+
+	measure percen_D =
+			
+			DIVIDE([personas_D], [Personas])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+
+		lineageTag: 2efb9e9e-0efc-44f6-8136-8597cdf4db7d
+
+	measure Color_Tarjeta =
+			
+			IF (
+			    ISFILTERED ( fct_Sisben[anio] ),
+			    "#B0942B",   -- color cuando hay filtro
+			    "#E0E0E0"    -- color cuando no hay filtro
+			)
+
+		displayFolder: "UX"
+
+		lineageTag: d1e43ebb-9b62-405d-89b6-567a93fd7e9b
+
+	measure Personas_Pobreza = ```
+			
+			CALCULATE(
+			    [Personas],
+			    fct_Sisben[grupo_sisben] IN {"A","B"}
+			)
+			
+			```
+		formatString: 0.00
+
+		displayFolder: "IPM"
+
+		lineageTag: 89574834-9ac1-4c49-be18-6486762fbea0
+
+	measure Pct_Personas_Pobreza =
+			
+			VAR Pobres = [Personas_Pobreza]
+			VAR TotalP = [Personas]
+			RETURN
+			IF(
+			    TotalP > 0,
+			    DIVIDE(Pobres, TotalP),
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM"
+
+		lineageTag: a5c28b61-cce2-4dce-b7fe-2a5ddc879eef
+
+	measure IPM_Subtexto = ```
+			
+			FORMAT([Personas IPM] / 1000000, "#,##0.0") & 
+			" millones de personas"
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: bd13778e-4453-4081-85ad-0c53d2792abc
+
+	measure Ranking_IPM = ```
+			
+			RANKX(
+			    ALL(dim_municipios[Municipio]),
+			    [Porcentaje_IPM],
+			    ,
+			    DESC,
+			    DENSE
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: ad53bf4f-3a78-4ffd-9201-321fef7748ba
+
+	measure IPM_Max = ```
+			
+			CALCULATE(
+			    [Porcentaje_IPM],
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_IPM] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 3dd840fe-d19b-4e1c-983a-0dbbf8def3c9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Municipio_Max_IPM = ```
+			
+			CALCULATE(
+			    SELECTEDVALUE(dim_municipios[Municipio]),
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_IPM] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: dbb2f672-6e80-4490-b24b-74f379740787
+
+	measure Texto_Max_IPM = ```
+			
+			[Municipio_Max_IPM] & 
+			" registra mayor IPM con " & 
+			FORMAT([IPM_Max], "0.0%")
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 08d3eddb-1b28-4816-b2d9-4a21826c6b75
+
+	measure Año_Maximo =
+			
+			MAX(fct_Sisben[anio])
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: ebe85ced-2bb3-4e11-b4ec-f2bc3cfe2bd4
+
+	measure IPM_Año_Actual = ```
+			
+			CALCULATE(
+			    [Porcentaje_IPM],
+			    FILTER(
+			        ALL(fct_Sisben[anio]),
+			        [anio] = MAX(fct_Sisben[anio])
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: f8153840-ac1e-4633-98ca-8dc0735f070d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure IPM_Año_Anterior = ```
+			
+			CALCULATE(
+			    [Porcentaje_IPM],
+			    FILTER(
+			        ALL(fct_Sisben[anio]),
+			        [anio] = MAX([anio]) - 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 24abd36a-fa2a-4eff-84c3-a13751678c51
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Variacion_IPM = ```
+			
+			[IPM_Año_Actual] - [IPM_Año_Anterior]
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 27ede75a-9a87-4ab4-a3e1-26e8d6e5b12d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Ranking_Variacion = ```
+			
+			RANKX(
+			    ALL(dim_municipios[Municipio]),
+			    [Variacion_IPM],
+			    ,
+			    DESC,
+			    DENSE
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: f63a6757-5922-4e35-b1d9-cf7aa6f104af
+
+	measure Municipio_Mayor_Aumento = ```
+			
+			CALCULATE(
+			    SELECTEDVALUE(dim_municipios[Municipio]),
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_Variacion] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: af073480-1f48-4ae9-a623-77c13ed8fbc0
+
+	measure Texto_Aumento = ```
+			
+			[Municipio_Mayor_Aumento] &
+			" registra el mayor incremento (" &
+			FORMAT([Variacion_Max], "0.0") &
+			" pp)"
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 7c9c7921-7270-40c0-99d5-f82906a316c8
+
+	measure Ranking_Reduccion = ```
+			
+			RANKX(
+			    ALL(dim_municipios[Municipio]),
+			    [Variacion_IPM],
+			    ,
+			    ASC,
+			    DENSE
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: 0d6aaaa4-688a-4dc5-b2eb-a1bad5084ca1
+
+	measure Variacion_Max = ```
+			
+			CALCULATE(
+			    [Variacion_IPM],
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_Variacion] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 7bfa43cc-4996-4af6-b76e-fe2e8dfb5378
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Municipio_Mayor_Reduccion = ```
+			
+			CALCULATE(
+			    SELECTEDVALUE(dim_municipios[Municipio]),
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_Reduccion] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: ec0ab518-46d6-456b-97b2-69fcc3abc089
+
+	measure Variacion_Min = ```
+			
+			CALCULATE(
+			    [Variacion_IPM],
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_Reduccion] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 4e67afd9-37a3-4a54-b59c-2b250a6f9d0a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Texto_Reduccion = ```
+			
+			[Municipio_Mayor_Reduccion] &
+			" presenta la mayor reducción (" &
+			FORMAT([Variacion_Min], "0.0") &
+			" pp)"
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 67314231-7cc9-4caf-a121-09ca88c96c16
+
+	measure Ranking_Personas_IPM = ```
+			
+			RANKX(
+			    ALL(dim_municipios[Municipio]),
+			    [Personas IPM],
+			    ,
+			    DESC,
+			    DENSE
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: 763df953-77f8-40cf-a03d-f6b03cf8875e
+
+	measure Municipio_Max_Personas = ```
+			
+			CALCULATE(
+			    SELECTEDVALUE(dim_municipios[Municipio]),
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_Personas_IPM] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 0fc80fc9-0548-480f-abe6-3a7460ea1dfd
+
+	measure Personas_Max_IPM = ```
+			
+			CALCULATE(
+			    [Personas IPM],
+			    FILTER(
+			        ALL(dim_municipios[Municipio]),
+			        [Ranking_Personas_IPM] = 1
+			    )
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: 525ed0a9-24a1-4885-b683-1b0a93829c93
+
+	measure Participacion_IPM = ```
+			
+			DIVIDE(
+			    [Personas IPM],
+			    CALCULATE([Personas IPM], ALL(dim_municipios))
+			)
+			
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM"
+
+		lineageTag: 0c5b0c0c-3894-45d2-80c4-cd563a17d87a
+
+	measure IPM_Acumulado =
+			VAR CurrentIPM = [Personas IPM]
+			RETURN
+			    IF (
+			        NOT ISBLANK(CurrentIPM),
+			        CALCULATE(
+			            [Personas IPM],
+			            FILTER(
+			                ALL(dim_municipios),
+			                [Personas IPM] >= CurrentIPM
+			            )
+			        )
+			    )
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: 32cdc41f-08f0-4700-9441-bdc139e44fb9
+
+	measure IPM_Acumulado_% = ```
+			
+			DIVIDE(
+			    [IPM_Acumulado],
+			    CALCULATE([Personas IPM], ALL(dim_municipios))
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: c0dbe01e-3b4d-4126-a26c-5e148a6b2c50
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Incidencia_Departamental = ```
+			
+			DIVIDE(
+			    [Personas IPM],
+			    [Personas]
+			)
+			
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM"
+
+		lineageTag: dbd45e7a-dd82-4611-931d-7e3b97417215
+
+	measure Participacion_Max = ```
+			
+			CALCULATE(
+			    [Participacion_IPM],
+			    FILTER(
+			        ALL(dim_municipios),
+			        [Ranking_Personas_IPM] = 1
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 3399a4ee-257d-425d-8df2-ad6524106c48
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Ranking_Volumen = ```
+			
+			RANKX(
+			    ALL(dim_municipios[Municipio]),
+			    [Personas IPM],
+			    ,
+			    DESC,
+			    DENSE
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: 47575759-e544-42bd-8c94-8684de73b233
+
+	measure Municipio_Mayor_Volumen = ```
+			
+			VAR TablaRanking =
+			    ADDCOLUMNS(
+			        ALL(dim_municipios),
+			        "Volumen", [Personas IPM]
+			    )
+			VAR Top1 =
+			    TOPN(1, TablaRanking, [Volumen], DESC)
+			RETURN
+			    MAXX(Top1, dim_municipios[Municipio])
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 0ad30232-8b32-4c26-97a2-8eda49c748cc
+
+	measure Participacion_Lider = ```
+			
+			CALCULATE(
+			    [Participacion_IPM],
+			    FILTER(
+			        ALL(dim_municipios),
+			        [Ranking_Volumen] = 1
+			    )
+			)
+			
+			```
+		formatString: 0
+
+		displayFolder: "IPM"
+
+		lineageTag: ffd044c9-f849-4b1e-a2ef-4c7ee6b50d0d
+
+	measure Incidencia =
+			
+			DIVIDE([Personas IPM], [Personas])
+
+		displayFolder: "IPM"
+
+		lineageTag: acb7aa1c-e5d2-41f7-8484-22d03f7aed11
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Subregion_Mayor_Incidencia = ```
+			
+			VAR TablaResumen =
+			    ADDCOLUMNS(
+			        VALUES('dim_municipios'[Subregion]),
+			        "Inc", [Incidencia]
+			    )
+			VAR MaxInc =
+			    MAXX(TablaResumen, [Inc])
+			RETURN
+			    CONCATENATEX(
+			        FILTER(TablaResumen, [Inc] = MaxInc),
+			        dim_municipios[Subregion],
+			        ", "
+			    )
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 055cb1e5-0eb7-4c20-bd17-c0889cbd354a
+
+	measure Participacion_IPM_Grupo = ```
+			
+			DIVIDE(
+			    [Personas IPM],
+			    CALCULATE(
+			        [Personas IPM],
+			        ALLEXCEPT(dim_municipios, dim_municipios[Subregion])
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 5c7ec9aa-3388-4fb2-ae85-ecd17de6a16b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Participacion_IPM_Subregion2 = ```
+			
+			DIVIDE(
+			    [Personas IPM],
+			    CALCULATE(
+			        [Personas IPM],
+			        ALLEXCEPT(dim_municipios, dim_municipios[Subregion]),
+			        REMOVEFILTERS(fct_Sisben[grupo_sisben])
+			    )
+			)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: cdc5a049-93dc-4995-893a-045de759a948
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Participacion_IPM_Subregion3 = ```
+			
+			VAR TotalSubregion =
+			    CALCULATE(
+			        [Personas IPM],
+			        REMOVEFILTERS(fct_Sisben[grupo_sisben]),
+			        REMOVEFILTERS(dim_municipios[Municipio]),
+			        VALUES(dim_municipios[Subregion])
+			    )
+			RETURN
+			DIVIDE([Personas IPM], TotalSubregion)
+			
+			```
+
+		displayFolder: "IPM"
+
+		lineageTag: 72b0485c-bcca-400f-96a4-de4a1c038d1d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Total_Viviendas =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    fct_Sisben[ide_hogar] = 1,
+			    fct_Sisben[tip_parentesco] = 1
+			)
+		formatString: #,0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 6f65be65-722f-42af-a43d-63a0936bd961
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure Prom_Personas_Hogar =
+			
+			DIVIDE(
+			    [Personas],
+			    [Hogares]
+			)
+
+		displayFolder: "Hogares"
+
+		lineageTag: 6ce3918d-88b3-4fca-a156-78f1b2217407
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Sin_Energia =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fct_Sisben),
+			        fct_Sisben[ind_tiene_energia] = 2,
+			        fct_Sisben[ide_hogar] = 1,
+			        fct_Sisben[tip_parentesco] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: fb0fbe4f-cef7-4976-a9b4-3e8b25619987
+
+	measure Pct_Sin_Acueducto =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_acueducto] = 2
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: a1f0d77e-9229-4d3b-a058-e09fd5bcf686
+
+	measure Pct_Sin_Alcantarillado =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_alcantarillado] = 2
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: fd996601-1f50-4da6-abb6-bbaebaff8ae9
+
+	measure Pct_Sin_Gas =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_gas] = 2
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: 6a49dc7f-7f83-4807-97c8-7ba082cc87e4
+
+	measure Pct_Sin_Recoleccion =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_recoleccion] = 2
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: aa57aec7-0363-4ee7-9b34-1533fff31b63
+
+	measure Pct_Pisos_Inadecuados =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fct_Sisben),
+			        fct_Sisben[tip_mat_pisos] IN {4, 5, 6},
+			        fct_Sisben[ide_hogar] = 1,
+			        fct_Sisben[tip_parentesco] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: 1a1ff7e2-d436-4851-8743-14691039ab42
+
+	measure tViviendas_Con_Privacion =
+			
+			CALCULATE(
+			    [Total_Viviendas],
+			    fct_Sisben[Privaciones_Vivienda] > 0
+			)
+		formatString: 0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 4167da1d-1db1-463a-82c8-83e609fc1881
+
+	measure Pct_Sin_Agua =
+			
+			DIVIDE(
+			    CALCULATE([Total_Viviendas], fct_Sisben[I11] = 1),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: a3b62bc7-7afc-4161-bd28-745c65dd2732
+
+	measure Pct_Paredes_Inadecuadas =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fct_Sisben),
+			        fct_Sisben[tip_mat_paredes] IN {3, 4, 5, 6, 7},
+			        fct_Sisben[ide_hogar] = 1,
+			        fct_Sisben[tip_parentesco] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: 9b63e624-46bc-4c97-8959-f318d3ed657a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hacinamiento =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fct_Sisben),
+			        fct_Sisben[Cat_Hacinamiento] = "Hacinado",
+			        fct_Sisben[ide_hogar] = 1,
+			        fct_Sisben[tip_parentesco] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: 93be3258-856c-4c92-80ec-586bff872c24
+
+	measure Pct_Saneamiento_Inadecuado =
+			
+			DIVIDE(
+			    CALCULATE([Total_Viviendas], fct_Sisben[I12] = 1),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda\Privaciones"
+
+		lineageTag: 7504c01a-3889-4d1c-8928-a87275d0d524
+
+	measure Pct_Viviendas_Rurales =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[Cod_clase] = 3
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 0ef77ff7-8b28-4214-9e06-0a41c1a23416
+
+	measure Prom_Calidad_Municipio =
+			
+			CALCULATE(
+			    AVERAGE(fct_Sisben[Nivel_Calidad_Vivienda]),
+			    fct_Sisben[ide_hogar] = 1
+			)
+		formatString: 0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: bf244a32-2f2d-4a67-abd5-751ba1bd9264
+
+	measure Score_Vivienda_Hogar =
+			
+			CALCULATE(
+			    AVERAGE(fct_Sisben[Privaciones_Vivienda]),
+			    fct_Sisben[tip_parentesco] = 1
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 44871d98-7c9e-4b81-a649-02c9c5a7cfaf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Hogares =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    fct_Sisben[tip_parentesco] = 1
+			)
+		formatString: #,0
+
+		displayFolder: "Hogares"
+
+		lineageTag: 148e6ec3-f4bf-44d5-a5ba-da35fa27ae73
+
+	measure Prom_Privaciones_Vivienda =
+			
+			CALCULATE(
+			    AVERAGE(fct_Sisben[Privaciones_Vivienda]),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[ide_hogar] = 1
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 7b2389bc-8e6e-4e07-a947-1726ac140271
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Con_Privacion =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fct_Sisben),
+			        fct_Sisben[Privaciones_Vivienda] >= 1,
+			        fct_Sisben[tip_parentesco] = 1,
+			        fct_Sisben[ide_hogar] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 250aab39-008e-4a10-81c2-5b77698d3198
+
+	measure Prom_Priv_Rural =
+			
+			CALCULATE(
+			    [Prom_Privaciones_Vivienda],
+			    fct_Sisben[Cod_clase] = 3
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 2a8b2f0d-fe45-4f52-87f4-8ef7ca07fb11
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Priv_Cabecera =
+			
+			CALCULATE(
+			    [Prom_Privaciones_Vivienda],
+			    fct_Sisben[Cod_clase] IN {2, 3})
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 848ab956-d862-4c0f-9163-83594c51dfc7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Viviendas_Jefe_Hombre =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[ide_hogar] = 1,
+			    fct_Sisben[Sexo_Jefe] = 1
+			)
+		formatString: 0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 26f99493-eb7a-4961-b34c-73dbbccc52ef
+
+	measure Viviendas_Jefa_Mujer =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[ide_hogar] = 1,
+			    fct_Sisben[Sexo_Jefe] = 2
+			)
+		formatString: 0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: e8b024d5-8d7e-46a1-a4c3-77d497fb600d
+
+	measure Pct_Jefe_Hombre =
+			
+			DIVIDE([Viviendas_Jefe_Hombre], [Total_Viviendas])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 3bf28946-0780-4a30-9aa0-a7cff093c734
+
+	measure Pct_Jefa_Mujer =
+			
+			DIVIDE([Viviendas_Jefa_Mujer], [Total_Viviendas])
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 7201e754-f268-42b2-8750-cd863d861055
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Priv_Hombre =
+			
+			CALCULATE(
+			    AVERAGE(fct_Sisben[Privaciones_Vivienda]),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[ide_hogar] = 1,
+			    fct_Sisben[Sexo_Jefe] = 1
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: d9a7f0a9-7f0d-4d42-bfc7-ea0012b52d6c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Priv_Mujer =
+			
+			CALCULATE(
+			    AVERAGE(fct_Sisben[Privaciones_Vivienda]),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[ide_hogar] = 1,
+			    fct_Sisben[Sexo_Jefe] = 2
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 8a5c85d5-ee3a-4cdb-a1f2-d9ee3f2bcaae
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Brecha_Privaciones =
+			
+			[Prom_Priv_Mujer] - [Prom_Priv_Hombre]
+
+		displayFolder: "Vivienda"
+
+		lineageTag: cd718887-7de0-4765-884a-61ee11808e43
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Hogares_Jefe_Hombre =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[Sexo_Jefe] = 1
+			)
+		formatString: 0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: ed3ab718-6af8-4d91-9ef4-68a20144d3dc
+
+	measure Hogares_Jefa_Mujer =
+			
+			CALCULATE(
+			    COUNTROWS(fct_Sisben),
+			    fct_Sisben[tip_parentesco] = 1,
+			    fct_Sisben[Sexo_Jefe] = 2
+			)
+		formatString: 0
+
+		displayFolder: "Vivienda"
+
+		lineageTag: ec968528-8b8a-409b-b5c9-bf3b1add4d83
+
+	measure Pct_Hacinamiento_Observable =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fct_Sisben),
+			        fct_Sisben[Personas_por_Cuarto] > 3,
+			        fct_Sisben[ide_hogar] = 1,
+			        fct_Sisben[tip_parentesco] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 4d40c758-3190-478b-91be-d942af9f0f44
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Pared_Material =
+			
+			DIVIDE(
+			    [Total_Viviendas],
+			    CALCULATE(
+			        [Total_Viviendas],
+			        ALLEXCEPT(
+			            fct_Sisben,
+			            'dim_municipios'[subregion]
+			        )
+			    )
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 9747f4b2-a782-459f-b676-2e1a399dbb78
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Piso_Material =
+			
+			DIVIDE(
+			    [Total_Viviendas],
+			    CALCULATE(
+			        [Total_Viviendas],
+			        ALLEXCEPT(
+			            fct_Sisben,
+			            'dim_municipios'[subregion]
+			        )
+			    )
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 5e35a21c-2b97-44f4-8402-8b5e9d937ae3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Cuartos_Vivienda =
+			
+			AVERAGE(fct_Sisben[num_cuartos_vivienda])
+
+		displayFolder: "Vivienda"
+
+		lineageTag: f4f63bdf-54e5-47c1-afd3-1c607d9bace8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Hogares_Vivienda =
+			
+			AVERAGE(fct_Sisben[num_hogares_vivienda])
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 62d63ea5-d615-494b-865d-c1d76b33af83
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Afectadas_Inundacion =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_evento_inundacion] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: f4aa61b0-42ec-41ea-82cd-8c542246f0fa
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Afectadas_Avalancha =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_evento_avalancha] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: ab3352fa-b3e3-4959-b5a4-52e0a466fe9e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Afectadas_Terremoto =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_evento_terremoto] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: cf820aa4-d593-4709-a915-f2f248bdee6f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Afectadas_Incendio =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_evento_incendio] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: 039fb404-42a9-47e0-9f93-1792fa059b69
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Afectadas_Vendaval =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_evento_vendaval] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: 37126c51-3fa0-4039-8ffc-8a8a05daf79d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viv_Afectadas_Hundimiento =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_evento_hundimiento] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: 9500d33a-d5bf-4ca2-b42b-741887550b2d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viviendas_Multiples_Hogares =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[num_hogares_vivienda] > 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 0ba4f0fb-7744-4a4c-af24-d37c41df9fa9
+
+	measure Prom_Inundaciones =
+			
+			AVERAGEX(
+			    FILTER(
+			        fct_Sisben,
+			        fct_Sisben[ind_evento_inundacion] = 1
+			    ),
+			    fct_Sisben[num_evento_inundacion]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: f0092fc1-7ae1-47a0-93fb-70fad8387626
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Avalancha =
+			
+			AVERAGEX(
+			    FILTER(
+			        fct_Sisben,
+			        fct_Sisben[ind_evento_avalancha] = 1
+			    ),
+			    fct_Sisben[num_evento_avalancha]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: 3293a7e4-a409-498d-9df1-14b632e156ed
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Hundimiento =
+			
+			AVERAGEX(
+			    FILTER(
+			        fct_Sisben,
+			        fct_Sisben[ind_evento_hundimiento] = 1
+			    ),
+			    fct_Sisben[num_evento_hundimiento]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: 71c0892c-303d-47d7-81dd-d58009f2902f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Incendio =
+			
+			AVERAGEX(
+			    FILTER(
+			        fct_Sisben,
+			        fct_Sisben[ind_evento_incendio] = 1
+			    ),
+			    fct_Sisben[num_evento_incendio]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: 44f2e777-781e-41fd-9add-9b005978a2c8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Prom_Terremoto =
+			
+			AVERAGEX(
+			    FILTER(
+			        fct_Sisben,
+			        fct_Sisben[ind_evento_terremoto] = 1
+			    ),
+			    fct_Sisben[num_evento_terremoto]
+			)
+
+		displayFolder: "Vivienda\Eventos Naturales"
+
+		lineageTag: cce314da-c418-4410-8d4e-a7ec2c14993f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Viviendas_Energia =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_energia] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 983e15ea-1a89-4439-98fd-bbd34dacc954
+
+	measure Pct_Viviendas_Acueducto =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_acueducto] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 6f6b3fc9-9ace-4311-b9b1-46b88b68e237
+
+	measure Pct_Viviendas_Gas =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Total_Viviendas],
+			        fct_Sisben[ind_tiene_gas] = 1
+			    ),
+			    [Total_Viviendas]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 0eff71ba-5332-4a57-a896-f01dfd964c5c
+
+	measure Incidencia_SISBEN =
+			
+			DIVIDE(
+			    [Personas_Pobreza],
+			    [Personas],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM"
+
+		lineageTag: 0926f4c4-3b4a-48b6-b294-763e94284c5d
+
+	measure SISBEN_Subtexto =
+			
+			FORMAT([Personas_Pobreza] / 1000000, "#,##0.0") &
+			" millones de personas en grupos A&B"
+
+		displayFolder: "IPM"
+
+		lineageTag: ca4f82a9-cf8a-4779-8c64-20c2ac8aa5e8
+
+	measure Pct_I1_BajoLogroEducativo =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I1]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: 9a546d92-4a91-4f10-b545-ea1a890d43d8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I2_Analfabetismo =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I2]),
+			    [Personas],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: ae8e6d71-74ad-4c50-b1ae-141b8d47c851
+
+	measure Pct_I3_InasistenciaEscolar =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I3]),
+			    [Personas],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: fb87406f-55ee-4e80-9b06-ff9c97cf1e22
+
+	measure Pct_I4_RezagoEscolar =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I4]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: 51510d52-82a7-4293-aae5-f741f7acca97
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I5_BarrerasCuidadoInfancia =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I5]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: 9db72216-94dd-479f-9d81-61cd0ad2843e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I6_TrabajoInfantil =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I6]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: b12c1c48-439b-44de-b009-fafe92398a8d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I7_DesempleoLargaDuracion =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I7]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: f482bda1-6017-455b-bf2a-b593c3eb1095
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I8_TrabajoInformal =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I8]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: ef12fd6f-0f30-4b50-8a79-780c9e0d6785
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I9_SinAseguramientoSalud =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I9]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: e52dc3ca-000e-4de1-946e-f081a882619a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I10_BarreraAccesoServiciosSalud =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I10]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: c4bed676-3b53-4185-981f-195366f6d8e2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I11_SinAccesoFuentesAguaMejorada =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I11]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: ec6fccb8-464e-45bb-9641-23c775c5c75d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I12_InadecuadaEliminacionExcretas =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I12]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: 850c33f1-acda-4887-accd-7a1b0d40734e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I13_MaterialInadecuadoPisos =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I13]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: 75df3eac-8433-49f8-ac4f-d70ac00323d2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I14_MaterialInadecuadoParedes =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I14]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: ccc5d832-23f6-4d4f-aec4-5274e70a6620
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_I15_HacinamientoCritico =
+			
+			DIVIDE(
+			    SUM(fct_Sisben[I15]),
+			    [Personas],
+			    0
+			)
+
+		displayFolder: "IPM\Dimensiones IPM"
+
+		lineageTag: fbb66e02-4fef-4f2b-a491-503eb6ab88a9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Titulo_Heatmap_IPM =
+			
+			VAR Cat =
+			CONCATENATEX(
+			    VALUES(Dim_IPM_Dimension[Categoria]),
+			    Dim_IPM_Dimension[Categoria],
+			    ", "
+			)
+			RETURN
+			"Privaciones IPM por dimensión – " &
+			IF(
+			    ISBLANK(Cat),
+			    "Todas las categorías",
+			    Cat
+			)
+
+		displayFolder: "IPM"
+
+		lineageTag: 64a75c29-b4e2-4773-836f-a27ae13c7f9c
+
+	measure Pct_Hogares_Internet =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_internet] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: dc231f13-3186-47e9-8e18-bd727aa6d921
+
+	measure Pct_Hogares_Nevera =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_nevera] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: 3e863f27-3df0-43cc-a861-c7a1e1ae56f5
+
+	measure Pct_Hogares_Lavadora =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_lavadora] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares"
+
+		lineageTag: 81016a1c-2ac3-44c0-be12-de0e6a6b139f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Pc =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_pc] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: 2e0c4fea-b1eb-4726-a440-913f2c126960
+
+	measure Pct_Hogares_Moto =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_moto] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares"
+
+		lineageTag: 5618eb09-1d91-4efd-9417-3fb3bc55cc70
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Tractor =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_tractor] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares"
+
+		lineageTag: 6bafcbb5-9e3f-425a-a04e-ec93768dbdf5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Carro =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_carro] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: 398defab-9982-43c1-8537-93e685daaa1c
+
+	measure Pct_Hogares_Bien_Raiz =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_bien_raiz] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: b8b8b5ac-d146-4ef7-b3b9-6d456d878434
+
+	measure Pct_Hogares_Gasto_Alimento =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_alimento] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 85515d94-8d53-4cad-a83f-604d9f6d2f09
+
+	measure Pct_Hogares_Gasto_Transporte =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_transporte] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 57323d2f-3ade-40cd-97a4-add73dedfca9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Gasto_Educacion =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_educacion] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 52f76fdc-cdda-4062-8667-15ed705de121
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Gasto_Salud =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_salud] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 03b727ad-423d-4a43-b544-1c1e9fa4a9a5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Gasto_Serv_Publi =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_serv_publicos] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: e7936950-0769-4637-9a21-1bd5313b1210
+
+	measure Pct_Hogares_Gasto_Celular =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_celular] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: f78e7486-12f8-40b1-a9c8-7ead4e4e4858
+
+	measure Pct_Hogares_Gasto_Arriendo =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_arriendo] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 82186853-e956-4f63-8342-b3f3270d6b87
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Gasto_Otros =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_gasto_otros] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 0711d241-7e85-47d8-ba8f-b5f7507ab537
+
+	measure Gasto_Promedio_Alimento =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_alimento]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: f76445f4-9a4b-45f7-95ce-364ea5bb29a3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Transporte =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_transporte]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 2b69965f-4466-4b0b-b56e-356c68d8b30f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Educacion =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_educacion]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 23d20635-4eae-4c24-939a-7d6c6773871e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Salud =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_salud]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 85a90192-1fc8-4eb6-bbeb-bc5de3ac60c0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Serv_Publicos =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_serv_publicos]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 45ad6380-326a-4e51-8266-c410c5b9dcd3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Celular =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_celular]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 7b5f29a9-0b96-4248-9e5b-271235c3191d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Arriendo =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_arriendo]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 16717d13-37f8-4cf3-a4b0-45169de0ec20
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Otros =
+			
+			AVERAGEX(
+			    VALUES(fct_Sisben[ide_hogar]),
+			    CALCULATE(MAX(fct_Sisben[vlr_gasto_otros]))
+			)
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: d3e10a57-3b14-45b1-bd07-939ce0c60433
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Gasto_Promedio_Total =
+			
+			AVERAGEX(
+			    FILTER(
+			        fct_Sisben,
+			        fct_Sisben[tip_parentesco] = 1
+			    ),
+			    fct_Sisben[vlr_total_gastos]
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+
+		displayFolder: "Hogares\Gasto"
+
+		lineageTag: 8e1350a5-ef8a-4c3c-ab0f-b99ec0549043
+
+	measure Valor_Indicador_Hogar =
+			
+			SWITCH(
+			    SELECTEDVALUE(Dim_Indicador_Hogar[Indicador]),
+			
+			    "% Agua disponible 7 días", [Pct_Hogares_Agua7Dias],
+			    "% Con cocina", [Pct_Hogares_Cocina],
+			
+			    "% Con nevera", [Pct_Hogares_Nevera],
+			    "% Con lavadora", [Pct_Hogares_Lavadora],
+			    "% Con computador", [Pct_Hogares_PC],
+			    "% Con internet", [Pct_Hogares_Internet],
+			
+			    "% Con moto", [Pct_Hogares_Moto],
+			    "% Con carro", [Pct_Hogares_Carro],
+			    "% Con tractor", [Pct_Hogares_Tractor],
+			    "% Con otra propiedad", [Pct_Hogares_Bien_Raiz],
+			
+			    "Gasto promedio alimentación", [Gasto_Promedio_Alimento],
+			    "Gasto promedio transporte", [Gasto_Promedio_Transporte],
+			    "Gasto promedio educación", [Gasto_Promedio_Educacion],
+			    "Gasto promedio salud", [Gasto_Promedio_Salud],
+			    "Gasto promedio servicios públicos", [Gasto_Promedio_Serv_Publicos],
+			    "Gasto promedio celular", [Gasto_Promedio_Celular],
+			    "Gasto promedio arriendo", [Gasto_Promedio_Arriendo],
+			    "Gasto promedio otros", [Gasto_Promedio_Otros],
+			    "Gasto promedio total", [Gasto_Promedio_Total]
+			)
+		formatString: #,0.00\ %;-#,0.00\ %;#,0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: c2d385cb-ce79-48ce-b36c-1c828792f5d2
+
+	measure Pct_Hogares_Cocina =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_cocina] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+
+		displayFolder: "Hogares"
+
+		lineageTag: c4a46068-95e8-4833-b1e0-81f4bc12f307
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Agua7Dias =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[ind_tiene_nevera] = 1
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: 8c18e12c-0b5d-4929-9617-e9dad8a847f3
+
+	measure Titulo_Heatmap_Hogares =
+			
+			"Condiciones y gastos de los hogares por subregión – " &
+			SELECTEDVALUE(Dim_Indicador_Hogar[Categoria], "Todas")
+
+		displayFolder: "Hogares"
+
+		lineageTag: be7b8e1c-33cc-49cf-9cf2-71f79d685160
+
+	measure Tamano_Promedio_Hogar =
+			
+			DIVIDE([Personas], [Hogares])
+
+		displayFolder: "Hogares"
+
+		lineageTag: 3344d6ec-b147-4d77-83d9-9f8438fed7ee
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Agua24H =
+			
+			DIVIDE(
+			    CALCULATE([Hogares], fct_Sisben[ind_agua_llega_24horas] = 1),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: 2348a9eb-0a86-44c7-9f9c-b441f12bb064
+
+	measure Personas_por_Cuarto_Dormir =
+			
+			DIVIDE(
+			    [Personas],
+			    SUM(fct_Sisben[num_cuartos_dormir]),
+			    0
+			)
+
+		displayFolder: "Hogares"
+
+		lineageTag: 0bd72e95-95b1-40fd-85f9-a6bc172db1be
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Pct_Hogares_Combustible_Solido =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Hogares],
+			        fct_Sisben[tip_energia_cocina] IN {4,5,6}
+			    ),
+			    [Hogares],
+			    0
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Hogares"
+
+		lineageTag: 4586d7a7-7096-4730-a1d6-5a4afd8f8472
+
+	measure Personas_Hombres = ```
+			
+			CALCULATE(
+			    [Personas]*-1,
+			    fct_Sisben[sexo_persona] = 1
+			) 
+			```
+		formatString: #,##0;#,##0
+
+		displayFolder: "Demografia"
+
+		lineageTag: 1aaa0258-ccda-4f96-9c99-b07de1e3ec6e
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	measure Personas_Mujeres =
+			
+			CALCULATE(
+			    [Personas],
+			    fct_Sisben[sexo_persona] = 2
+			)
+		formatString: 0
+
+		displayFolder: "Demografia"
+
+		lineageTag: 918faec1-9988-4502-a59b-c551750eb95a
+
+	measure Hombre_% =
+			
+			DIVIDE([Personas_Hombres], [Personas])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+
+		lineageTag: d495bf21-dad5-4442-b4eb-edbd79a3652c
+
+	measure Mujeres_% =
+			
+			DIVIDE([Personas_Mujeres], [Personas])
+
+		displayFolder: "Demografia"
+
+		lineageTag: fc96d707-e640-43bf-838f-8defa680b52a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Max_Problema_Vivienda =
+			
+			MAXX(
+			    {
+			        [Pct_Sin_Energia],
+			        [Pct_Sin_Gas],
+			        [Pct_Sin_Acueducto],
+			        [Pct_Sin_Alcantarillado],
+			        [Pct_Sin_Recoleccion]
+			    },
+			    [Value]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 18471d75-8239-4fd8-ab90-7ed7bf583c59
+
+	measure Problema_Dominante =
+			
+			VAR energia = [Pct_Sin_Energia]
+			VAR gas = [Pct_Sin_Gas]
+			VAR agua = [Pct_Sin_Acueducto]
+			VAR alc = [Pct_Sin_Alcantarillado]
+			VAR rec = [Pct_Sin_Recoleccion]
+			
+			VAR maximo =
+			MAXX(
+			    {energia, gas, agua, alc, rec},
+			    [Value]
+			)
+			
+			RETURN
+			SWITCH(
+			TRUE(),
+			maximo = energia, "Sin energía",
+			maximo = gas, "Sin gas",
+			maximo = agua, "Sin acueducto",
+			maximo = alc, "Sin alcantarillado",
+			maximo = rec, "Sin recolección"
+			)
+
+		displayFolder: "Vivienda"
+
+		lineageTag: 0053d59f-de8d-424e-b199-aa337ce47a08
+
+	measure Proporcion_Municipio =
+			
+			DIVIDE(
+			    [Personas],
+			    [Personas], ALL(''[]))
+			)
+
+		displayFolder: "Demografia"
+
+		lineageTag: a7438d3b-a5fe-43f3-bda7-63eea7970a13
+
+	measure Pct_Personas_Municipio =
+			
+			DIVIDE(
+			    [Personas],
+			    CALCULATE(
+			        [Personas],
+			        REMOVEFILTERS('dim_municipios'[cod_mpio])
+			    )
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Demografia"
+
+		lineageTag: 323e4733-051f-4c53-8bd2-00055efab38e
+
+	measure Pct_Grupo =
+			DIVIDE(
+			    [Personas],
+			    CALCULATE(
+			        [Personas],
+			        REMOVEFILTERS(fct_Sisben[grupo_sisben])
+			    )
+			)
+
+		displayFolder: "Demografia"
+
+		lineageTag: 1d29a5ea-27f9-4458-bc53-d38e4457f0e1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Etiqueta_Barra = FORMAT([Personas], "#,##0") & " (" & FORMAT([Pct_Grupo], "0.0%") & ")"
+
+		displayFolder: "UX"
+
+		lineageTag: 54348dc2-c6b4-41bc-b047-df784e83853c
+
+	measure Grupo_A = ```
+			
+			CALCULATE(
+			    [Personas],
+			    fct_Sisben[grupo_sisben] = "A"
+			)
+			
+			
+			```
+		formatString: #,0
+
+		displayFolder: "Demografia"
+
+		lineageTag: 495d9f67-73f6-4895-a425-411203f91ae8
+
+	measure Grupo_B = ```
+			
+			CALCULATE(
+			    [Personas],
+			    fct_Sisben[grupo_sisben] = "B"
+			)
+			
+			```
+		formatString: #,0
+
+		displayFolder: "Demografia"
+
+		lineageTag: ec439f0a-bcc9-4d8b-9761-5d966e31604a
+
+	measure Grupo_C = ```
+			
+			CALCULATE(
+			    [Personas],
+			    fct_Sisben[grupo_sisben] = "C"
+			)
+			
+			
+			```
+		formatString: #,0
+
+		displayFolder: "Demografia"
+
+		lineageTag: 5fa6a117-01e9-4a83-8638-a287d77b5912
+
+	measure Grupo_D =
+			
+			CALCULATE(
+			    [Personas],
+			    fct_Sisben[grupo_sisben] = "D"
+			)
+		formatString: #,0
+
+		displayFolder: "Demografia"
+
+		lineageTag: d6124221-c37f-4c1e-af8d-a4687d604755
+
+	measure Total_Personas_Filtro =
+			
+			CALCULATE(
+			    [Personas],
+			    ALLSELECTED(fct_Sisben)
+			)
+		formatString: 0
+
+		displayFolder: "Demografia"
+
+		lineageTag: b3731d19-87f4-415e-80f2-c9d63f97ed74
+
+	measure Etiqueta_Grupo_A =
+			
+			FORMAT([Grupo_A], "#,##0") &
+			" (" &
+			FORMAT(DIVIDE([Grupo_A], [Total_Personas_Filtro]), "0.0%") &
+			")"
+
+		displayFolder: "Demografia"
+
+		lineageTag: e23e1ee8-6505-4b44-b891-f7f8176217e3
+
+	measure Etiqueta_Grupo_B =
+			
+			FORMAT([Grupo_B], "#,##0") &
+			" (" &
+			FORMAT(DIVIDE([Grupo_B], [Total_Personas_Filtro]), "0.0%") &
+			")"
+
+		displayFolder: "Demografia"
+
+		lineageTag: cd139702-dfe4-431b-83fc-9f34009db93f
+
+	measure Etiqueta_Grupo_C =
+			
+			FORMAT([Grupo_C], "#,##0") &
+			" (" &
+			FORMAT(DIVIDE([Grupo_C], [Total_Personas_Filtro]), "0.0%") &
+			")"
+
+		displayFolder: "Demografia"
+
+		lineageTag: 701d3f77-86ac-4a96-ad0f-5d9cb2ad2422
+
+	measure Etiqueta_Grupo_D =
+			
+			FORMAT([Grupo_D], "#,##0") &
+			" (" &
+			FORMAT(DIVIDE([Grupo_D], [Total_Personas_Filtro]), "0.0%") &
+			")"
+
+		displayFolder: "Demografia"
+
+		lineageTag: 78aa8adf-b9d2-4616-87f9-3bf4e6b691ad
+
+	measure 'Subregiones todas' =
+			
+			UNION(
+			    SELECTCOLUMNS(ALL('dim_municipios'[Subregion]), "Subregion", 'dim_municipios'[Subregion]),
+			    ROW("Subregion", "Todas las subregiones")
+			)
+
+		displayFolder: "Demografia"
+
+		lineageTag: 21ab8534-3d31-407b-a62b-53d230eb63ae
+
+	measure 'Tasa de Cobertura SisbÃ©n' =
+			VAR current_year = MAX(fct_Sisben[anio])
+			VAR personas_sisben = [Personas]
+			VAR pob_dane = CALCULATE(
+			    SUM('Poblacion_DANE'[Poblacion_Proyectada]),
+			    TREATAS({current_year}, 'Dim_Anios'[anio])
+			)
+			RETURN DIVIDE(personas_sisben, pob_dane)
+		formatString: 0.00%
+
+		displayFolder: "Demografia"
+
+		lineageTag: a7e007ca-46aa-4fd5-91bf-d2b8001d0fb2
+
+	measure UX_Titulo_Tablero = ```
+			
+			-- 1. Bloque Tiempo
+			VAR vAno = IF(ISFILTERED(fct_Sisben[anio]), "Año " & CONCATENATEX(VALUES(fct_Sisben[anio]), fct_Sisben[anio], ", "), BLANK())
+			
+			-- 2. Bloque Geografía (Subregión con tildes y formato correcto)
+			VAR tSubRaw = IF(ISFILTERED('dim_municipios'[Subregion]), SELECTEDVALUE('dim_municipios'[Subregion]), BLANK())
+			VAR tSub = IF(ISBLANK(tSubRaw), BLANK(), 
+			              "En " & SWITCH(tSubRaw, 
+			                  "VALLE DE ABURRA", "Valle de Aburra", 
+			                  "BAJO CAUCA", "Bajo Cauca", 
+			                  "MAGDALENA MEDIO", "Magdalena Medio", 
+			                  "NORDESTE", "Nordeste", 
+			                  "NORTE", "Norte", 
+			                  "OCCIDENTE", "Occidente", 
+			                  "ORIENTE", "Oriente", 
+			                  "SUROESTE", "Suroeste", 
+			                  "URABA", "Uraba", 
+			                  tSubRaw) -- Por si acaso hay una nueva
+			          )
+			
+			VAR tMpio = IF(ISFILTERED('dim_municipios'[Municipio]), CONCATENATEX(VALUES('dim_municipios'[Municipio]), 'dim_municipios'[Municipio], ", "), BLANK())
+			VAR vGeo = IF(ISBLANK(tSub), tMpio, tSub & IF(ISBLANK(tMpio), "", ", " & tMpio))
+			
+			-- 3. Bloque Zona (Ahora separado por punto medio)
+			VAR vZona = IF(ISFILTERED(fct_Sisben[Zona]), "Zona " & CONCATENATEX(VALUES(fct_Sisben[Zona]), fct_Sisben[Zona], ", "), BLANK())
+			
+			-- 4. Bloque Sisbén (Grupo A, Clasificación)
+			VAR tGrupo = IF(ISFILTERED(fct_Sisben[grupo_sisben]), "Grupo " & CONCATENATEX(VALUES(fct_Sisben[grupo_sisben]), fct_Sisben[grupo_sisben], ", "), BLANK())
+			VAR tClasifica = IF(ISFILTERED(fct_Sisben[Clasificacion]), CONCATENATEX(VALUES(fct_Sisben[Clasificacion]), fct_Sisben[Clasificacion], ", "), BLANK())
+			VAR vSisben = IF(ISBLANK(tGrupo), tClasifica, tGrupo & IF(ISBLANK(tClasifica), "", ", " & tClasifica))
+			
+			-- 5. Bloque Sexo (Agregando " Hogar" al final de Hombre Jefe / Mujer Jefe)
+			VAR vSexo = IF(ISFILTERED(fct_Sisben[Sexo_Jefe_Label]), 
+			               CONCATENATEX(VALUES(fct_Sisben[Sexo_Jefe_Label]), fct_Sisben[Sexo_Jefe_Label] & " Hogar", ", "), BLANK())
+			
+			-- 6. Bloque Edad
+			VAR vMinE = MIN(fct_Sisben[Edad])
+			VAR vMaxE = MAX(fct_Sisben[Edad])
+			VAR vEdad = IF(ISFILTERED(fct_Sisben[Edad]), "Edades " & vMinE & " - " & vMaxE, BLANK())
+			
+			-- UNIÓN FINAL (Filtramos vacíos y unimos con punto medio)
+			VAR unidos = 
+			    CONCATENATEX(
+			        FILTER( {vAno, vGeo, vZona, vSisben, vSexo, vEdad}, [Value] <> BLANK() ),
+			        [Value],
+			        " • "
+			    )
+			
+			RETURN 
+			    IF(ISBLANK(unidos), "Visión General: Departamento de Antioquia", "Selección de Filtros: " & unidos)
+			
+			```
+
+		displayFolder: "UX"
+
+		lineageTag: 5895de7b-e1b9-44c8-9f79-cdee35473e5c
+
+	measure Personas_Hommbres_Piramide = -[Personas_Hombres]
+		formatString: 0
+
+		displayFolder: "Demografia"
+
+		lineageTag: a093f6de-d5c6-4d9c-a1f6-79cc62611d96
+
+	measure Matriz1_PorcentajeValido = ```
+			
+			DIVIDE(
+			    [Matriz1_Validados], 
+			    [Personas], 
+			    BLANK()
+			)
+			```
+		formatString: #,0.00\ %;-#,0.00\ %;#,0.00\ %
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: bd9c848d-c47f-4984-83a5-f01ac5adea7f
+
+	measure Personas_Verificacion = ```
+			CALCULATE([Personas], Dim_Estado_DNP[Categoria_Macro] = "Verificación")
+			
+			```
+		formatString: #,0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: a30d9b59-351d-488e-9713-06622f0cf8a1
+
+	measure Personas_Excluidas = CALCULATE([Personas], Dim_Estado_DNP[Categoria_Macro] = "Excluido")
+		formatString: #,0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: c32e2656-9000-4851-9ca0-da26713ca156
+
+	measure '-- Indicador Clave de Desempeño (KPI)%_Salud_Base_Datos' = DIVIDE([Matriz1_PorcentajeValido], [Personas])
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: a57b0d5c-7443-4ee8-b98b-99a3e61a45dc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Calidad_Integridad_Porcentaje = DIVIDE([Matriz1_PorcentajeValido], [Personas], BLANK())
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 6d5089d1-85f5-4ca7-8250-4248c75b7334
+
+	measure Matriz1_Validados = ```
+			
+			CALCULATE(
+			    [Personas], 
+			    fct_Sisben[estado] = "0"
+			)
+			```
+		formatString: #,0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 5983f0e3-d4a3-4530-a56c-15f4cc926c7e
+
+	measure Matriz1_Ranking_Mpio =
+			
+			IF(
+			    ISBLANK([Matriz1_PorcentajeValido]), BLANK(),
+			    RANKX(ALL('dim_municipios'[Municipio]), [Matriz1_PorcentajeValido], , DESC, Dense)
+			)
+		formatString: 0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 1d60ccfa-6303-4de7-921e-6a384bdf687a
+
+	measure Matriz2_VerificacionOficina = ```
+			
+			CALCULATE(
+			    [Personas], 
+			    fct_Sisben[estado] IN {"60", "63", "64", "65", "66", "67", "68", "69"}
+			)
+			```
+		formatString: 0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 46249394-8faa-4b33-a6a0-1168c9aed3f7
+
+	measure Matriz2_PorcentajeOficina = ```
+			
+			VAR Total_En_Problemas = 
+			CALCULATE(
+			    [Personas], 
+			    fct_Sisben[estado] <> "0",
+			    NOT ISBLANK(fct_Sisben[estado])
+			)
+			RETURN DIVIDE([Matriz2_VerificacionOficina], Total_En_Problemas, BLANK())
+			
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 7b868bf5-fa96-4c22-ba68-ca61cea2f738
+
+	measure Matriz2_Ranking_Mpio =
+			
+			IF(
+			    ISBLANK([Matriz2_PorcentajeOficina]), BLANK(),
+			    RANKX(ALL('dim_municipios'[Municipio]), [Matriz2_PorcentajeOficina], , DESC, Dense)
+			)
+		formatString: 0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 0a4b5000-44b0-41a2-af79-43e761923121
+
+	measure Matriz3_SeleccionCoord = ```
+			
+			CALCULATE(
+			    [Personas], 
+			    fct_Sisben[estado] IN {"50", "51", "52", "53", "54", "55", "61", "69", "90", "91", "92"}
+			)
+			```
+		formatString: 0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 3c362aa5-f92d-4389-9075-e1a5314ec28c
+
+	measure Matriz3_PorcentajeCoord = ```
+			
+			VAR Total_En_Problemas = 
+			CALCULATE(
+			    [Personas], 
+			    fct_Sisben[estado] <> "0",
+			    NOT ISBLANK(fct_Sisben[estado])
+			)
+			RETURN DIVIDE([Matriz3_SeleccionCoord], Total_En_Problemas, BLANK())
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 49d5a2cf-da1e-42a4-a96e-c7079dde0a9e
+
+	measure Matriz3_Ranking_Mpio =
+			
+			IF(
+			    ISBLANK([Matriz3_PorcentajeCoord]), BLANK(),
+			    RANKX(ALL('dim_municipios'[Municipio]), [Matriz3_PorcentajeCoord], , DESC, Dense)
+			)
+		formatString: 0
+
+		displayFolder: "Calidad Datos"
+
+		lineageTag: 4fb99f6b-3703-4f3f-81a2-ff3da49d222c
+
+	measure Etiqueta_Barra_Por_Grupo =
+			
+			FORMAT([Personas], "#,##0")
+
+		displayFolder: "UX"
+
+		lineageTag: eba60b74-8ba7-4f6f-8337-207a1ed9a2da
+
+	measure Pct_PersonasIPM_Municipio =
+			
+			DIVIDE(
+			    [Personas IPM],
+			    CALCULATE(
+			        [Personas IPM],
+			        REMOVEFILTERS('dim_municipios'[cod_mpio])
+			    )
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "IPM"
+
+		lineageTag: 2cab3443-ed22-449e-a630-b61424e39083
+
+	measure anio_Seleccionado = "Año selecionado " & SELECTEDVALUE(fct_Sisben[anio])
+		formatString: String
+
+		displayFolder: "Demografia"
+
+		lineageTag: 6afd819c-969e-418d-82fb-f7617c3030a1
+
+	measure Tarjeta_IPM_Combinada = FORMAT([Personas IPM], "#,##0") & " Personas IPM  |  " & FORMAT([Porcentaje_IPM], "0.0%")
+		formatString: String
+
+		displayFolder: "IPM"
+
+		lineageTag: e734dfd4-089b-4179-8f38-8b7b4b0f4968
+
+	column cod_mpio
+		dataType: string
+		lineageTag: 7637a1d4-ba2d-4652-929b-f6d0126a1916
+		summarizeBy: none
+		sourceColumn: cod_mpio
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_clase
+		dataType: int64
+		formatString: 0
+		lineageTag: 03d60680-5f2a-442c-b76c-fde3401b8c2f
+		summarizeBy: sum
+		sourceColumn: Cod_clase
+
+		annotation SummarizationSetBy = Automatic
+
+	column NOM_BARRIO
+		dataType: string
+		lineageTag: acfd7702-6cbe-42d8-a6b8-df3b622d482d
+		summarizeBy: none
+		sourceColumn: NOM_BARRIO
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_vivienda
+		dataType: int64
+		formatString: 0
+		lineageTag: d131b343-5e5a-48e1-97d4-7a7348624a5d
+		summarizeBy: sum
+		sourceColumn: tip_vivienda
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_mat_paredes
+		dataType: int64
+		formatString: 0
+		lineageTag: c8999cb5-fa02-4fd3-8083-ecb108ad6415
+		summarizeBy: sum
+		sourceColumn: tip_mat_paredes
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_mat_pisos
+		dataType: int64
+		formatString: 0
+		lineageTag: e82d7640-62e8-4b30-9b52-a4abb73d2a94
+		summarizeBy: sum
+		sourceColumn: tip_mat_pisos
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_energia
+		dataType: int64
+		formatString: 0
+		lineageTag: 2d0860c7-b1ba-4ec3-b7d8-924584781fb7
+		summarizeBy: sum
+		sourceColumn: ind_tiene_energia
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_alcantarillado
+		dataType: int64
+		formatString: 0
+		lineageTag: 23d229ec-42cb-4818-bd70-f761f6128b99
+		summarizeBy: sum
+		sourceColumn: ind_tiene_alcantarillado
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_gas
+		dataType: int64
+		formatString: 0
+		lineageTag: 7a394c5d-073f-4b64-8de0-4ab14d39416c
+		summarizeBy: sum
+		sourceColumn: ind_tiene_gas
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_recoleccion
+		dataType: int64
+		formatString: 0
+		lineageTag: 22c9b7df-d8e9-4206-9f17-02ad2e613a6c
+		summarizeBy: sum
+		sourceColumn: ind_tiene_recoleccion
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_acueducto
+		dataType: int64
+		formatString: 0
+		lineageTag: 098de4f4-1262-442d-9a03-125db9f155de
+		summarizeBy: sum
+		sourceColumn: ind_tiene_acueducto
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_cuartos_vivienda
+		dataType: int64
+		formatString: 0
+		lineageTag: 42548da7-ec21-4432-88f7-132df94fecb7
+		summarizeBy: sum
+		sourceColumn: num_cuartos_vivienda
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_hogares_vivienda
+		dataType: int64
+		formatString: 0
+		lineageTag: cf3f8357-80e2-48e1-98e4-a709d75d7dec
+		summarizeBy: sum
+		sourceColumn: num_hogares_vivienda
+
+		annotation SummarizationSetBy = Automatic
+
+	column ide_hogar
+		dataType: int64
+		formatString: 0
+		lineageTag: bb1b72db-6278-4a3c-8477-0a65c04fea65
+		summarizeBy: sum
+		sourceColumn: ide_hogar
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_ocupa_vivienda
+		dataType: int64
+		formatString: 0
+		lineageTag: 466f741d-fd89-4b6a-9d34-5479539085b6
+		summarizeBy: sum
+		sourceColumn: tip_ocupa_vivienda
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_cuartos_dormir
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d196048-a89b-4bd6-a10c-8ab12965b495
+		summarizeBy: sum
+		sourceColumn: num_cuartos_dormir
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_sanitario
+		dataType: int64
+		formatString: 0
+		lineageTag: f7aeb6a9-493c-4845-b49e-0c191f92b585
+		summarizeBy: sum
+		sourceColumn: tip_sanitario
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_ubi_sanitario
+		dataType: int64
+		formatString: 0
+		lineageTag: 69001e15-d78e-4b10-8fce-792896a5d023
+		summarizeBy: sum
+		sourceColumn: tip_ubi_sanitario
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_uso_sanitario
+		dataType: int64
+		formatString: 0
+		lineageTag: 94b62aa6-725f-4d28-82c1-1f3ecf28ea29
+		summarizeBy: sum
+		sourceColumn: tip_uso_sanitario
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_origen_agua
+		dataType: int64
+		formatString: 0
+		lineageTag: ad6f67e2-5117-48a2-bf60-ef6e3d6b5d75
+		summarizeBy: sum
+		sourceColumn: tip_origen_agua
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_agua_llega_7dias
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c789faf-230a-435d-ae13-f6a09d0c0236
+		summarizeBy: sum
+		sourceColumn: ind_agua_llega_7dias
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_agua_llega_24horas
+		dataType: int64
+		formatString: 0
+		lineageTag: 150a2474-750e-402f-a59e-0ce529f6ba62
+		summarizeBy: sum
+		sourceColumn: ind_agua_llega_24horas
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_uso_agua_beber
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ea3bbec-d2dd-491a-b124-d7e9e925c5b7
+		summarizeBy: sum
+		sourceColumn: tip_uso_agua_beber
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_elimina_basura
+		dataType: int64
+		formatString: 0
+		lineageTag: 598483dd-4eb9-45e9-95a2-132326959a95
+		summarizeBy: sum
+		sourceColumn: tip_elimina_basura
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_cocina
+		dataType: int64
+		formatString: 0
+		lineageTag: 5bc5956d-988f-4414-b714-f2092670ddbb
+		summarizeBy: sum
+		sourceColumn: ind_tiene_cocina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_prepara_alimentos
+		dataType: int64
+		formatString: 0
+		lineageTag: a672353f-d9d3-484f-885a-8523528054e3
+		summarizeBy: sum
+		sourceColumn: tip_prepara_alimentos
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_uso_cocina
+		dataType: int64
+		formatString: 0
+		lineageTag: 70874474-e99b-42f7-9467-247d8c074845
+		summarizeBy: sum
+		sourceColumn: tip_uso_cocina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_energia_cocina
+		dataType: int64
+		formatString: 0
+		lineageTag: bb75e965-7248-45d3-9d1b-80fe4804c1bb
+		summarizeBy: sum
+		sourceColumn: tip_energia_cocina
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_nevera
+		dataType: int64
+		formatString: 0
+		lineageTag: 1e752e35-b3fa-4f6d-a078-e0fd436784dc
+		summarizeBy: sum
+		sourceColumn: ind_tiene_nevera
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_lavadora
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e3d6b73-2d84-4dee-aed0-417d833ff630
+		summarizeBy: sum
+		sourceColumn: ind_tiene_lavadora
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_pc
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b9741b3-ef50-4d22-8dc4-5a2e18a00b7f
+		summarizeBy: sum
+		sourceColumn: ind_tiene_pc
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_internet
+		dataType: int64
+		formatString: 0
+		lineageTag: 7bbea59a-fd6a-48e6-9f03-c62d953d0614
+		summarizeBy: sum
+		sourceColumn: ind_tiene_internet
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_moto
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e1c177f-38db-4866-9740-dc98cff34fe4
+		summarizeBy: sum
+		sourceColumn: ind_tiene_moto
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_tractor
+		dataType: int64
+		formatString: 0
+		lineageTag: cf5deeee-e82b-4233-becf-1a223d21b2cb
+		summarizeBy: sum
+		sourceColumn: ind_tiene_tractor
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_carro
+		dataType: int64
+		formatString: 0
+		lineageTag: ff704f95-7476-45a7-8ab6-d7ddc13dbc82
+		summarizeBy: sum
+		sourceColumn: ind_tiene_carro
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_tiene_bien_raiz
+		dataType: int64
+		formatString: 0
+		lineageTag: af7c6c2e-370f-4832-8e49-302f0a756aa1
+		summarizeBy: sum
+		sourceColumn: ind_tiene_bien_raiz
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_alimento
+		dataType: int64
+		formatString: 0
+		lineageTag: e996cf83-93b3-4d7d-8531-3ae4958d0894
+		summarizeBy: sum
+		sourceColumn: ind_gasto_alimento
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_alimento
+		dataType: int64
+		formatString: 0
+		lineageTag: 72c62991-3e76-4e49-9819-665c5ccee1d8
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_alimento
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_transporte
+		dataType: int64
+		formatString: 0
+		lineageTag: 71ed0211-b5a2-492a-8415-5c94a7ee5b12
+		summarizeBy: sum
+		sourceColumn: ind_gasto_transporte
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_transporte
+		dataType: int64
+		formatString: 0
+		lineageTag: 2dc3506a-b371-4f2a-9f2e-e83b0cecb1db
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_transporte
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_educacion
+		dataType: int64
+		formatString: 0
+		lineageTag: b4a8b5dd-83ac-492c-8af8-e9d3300a2c19
+		summarizeBy: sum
+		sourceColumn: ind_gasto_educacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_educacion
+		dataType: int64
+		formatString: 0
+		lineageTag: 5af22b04-2a39-43f9-99f7-59c136c62075
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_educacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_salud
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a81efc3-ca2d-43e4-80b1-60af35dbd7f7
+		summarizeBy: sum
+		sourceColumn: ind_gasto_salud
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_salud
+		dataType: int64
+		formatString: 0
+		lineageTag: 070af244-d39b-44aa-831f-2d756322fb98
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_salud
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_serv_publicos
+		dataType: int64
+		formatString: 0
+		lineageTag: 2725bdde-11a3-4cf7-bb58-a02dee035a20
+		summarizeBy: sum
+		sourceColumn: ind_gasto_serv_publicos
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_serv_publicos
+		dataType: int64
+		formatString: 0
+		lineageTag: 3aba0a5d-f694-4f9e-b447-98284af92a0d
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_serv_publicos
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_celular
+		dataType: int64
+		formatString: 0
+		lineageTag: 6b833015-ca75-4c09-ac0c-712c7211e4e3
+		summarizeBy: sum
+		sourceColumn: ind_gasto_celular
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_celular
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e707eb0-941a-4755-92d7-38f33b71cb79
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_celular
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_arriendo
+		dataType: int64
+		formatString: 0
+		lineageTag: 587a05c9-1e34-40db-b429-4e0cb70a5cfb
+		summarizeBy: sum
+		sourceColumn: ind_gasto_arriendo
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_arriendo
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d8de544-9461-44d6-83c7-37834d3a2901
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_arriendo
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_gasto_otros
+		dataType: int64
+		formatString: 0
+		lineageTag: 31bf0634-ffc4-434d-9981-44b5442c882b
+		summarizeBy: sum
+		sourceColumn: ind_gasto_otros
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_gasto_otros
+		dataType: int64
+		formatString: 0
+		lineageTag: c74f08a6-30ec-4415-ba9b-742557729ea6
+		summarizeBy: sum
+		sourceColumn: vlr_gasto_otros
+
+		annotation SummarizationSetBy = Automatic
+
+	column vlr_total_gastos
+		dataType: int64
+		formatString: 0
+		lineageTag: 36c137f5-ab98-4da4-b05d-bd7fbbcc21c1
+		summarizeBy: sum
+		sourceColumn: vlr_total_gastos
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_evento_inundacion
+		dataType: int64
+		formatString: 0
+		lineageTag: 288e5908-a345-4d7c-bb81-8c76b7ea1b8d
+		summarizeBy: sum
+		sourceColumn: ind_evento_inundacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_evento_inundacion
+		dataType: int64
+		formatString: 0
+		lineageTag: c540a1bd-25f7-4990-bc37-4354d577910b
+		summarizeBy: sum
+		sourceColumn: num_evento_inundacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_evento_avalancha
+		dataType: int64
+		formatString: 0
+		lineageTag: 56be63b9-bde4-413d-a60a-c1514e96f82f
+		summarizeBy: sum
+		sourceColumn: ind_evento_avalancha
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_evento_avalancha
+		dataType: int64
+		formatString: 0
+		lineageTag: c719731e-c5e4-4469-a55c-a7d6b0a814e8
+		summarizeBy: sum
+		sourceColumn: num_evento_avalancha
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_evento_terremoto
+		dataType: int64
+		formatString: 0
+		lineageTag: d33b23d2-1330-4e6d-8bd3-66b40d5895bf
+		summarizeBy: sum
+		sourceColumn: ind_evento_terremoto
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_evento_terremoto
+		dataType: int64
+		formatString: 0
+		lineageTag: 2bd44c08-6a8e-442e-b65a-45eb16ca8e72
+		summarizeBy: sum
+		sourceColumn: num_evento_terremoto
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_evento_incendio
+		dataType: int64
+		formatString: 0
+		lineageTag: f09912a0-d33c-499b-896c-a0eceadf5c1d
+		summarizeBy: sum
+		sourceColumn: ind_evento_incendio
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_evento_incendio
+		dataType: int64
+		formatString: 0
+		lineageTag: 3d8b8a6a-6ab3-480c-8fb1-07ffd73431c1
+		summarizeBy: sum
+		sourceColumn: num_evento_incendio
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_evento_vendaval
+		dataType: int64
+		formatString: 0
+		lineageTag: dd365f15-f56b-454f-83d6-14f1c123cd2c
+		summarizeBy: sum
+		sourceColumn: ind_evento_vendaval
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_evento_hundimiento
+		dataType: int64
+		formatString: 0
+		lineageTag: 0bf93166-30bc-4a34-8a14-4abc3e015ad0
+		summarizeBy: sum
+		sourceColumn: ind_evento_hundimiento
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_evento_hundimiento
+		dataType: int64
+		formatString: 0
+		lineageTag: db970925-e1fc-4ade-a263-8bd5c0aa261b
+		summarizeBy: sum
+		sourceColumn: num_evento_hundimiento
+
+		annotation SummarizationSetBy = Automatic
+
+	column num_personas_hogar
+		dataType: int64
+		formatString: 0
+		lineageTag: 9f188ba2-3c32-4c74-83c2-39c31d9a05a6
+		summarizeBy: sum
+		sourceColumn: num_personas_hogar
+
+		annotation SummarizationSetBy = Automatic
+
+	column sexo_persona
+		dataType: int64
+		formatString: 0
+		lineageTag: e097b249-33a2-463d-8c2d-b343662fbe2f
+		summarizeBy: sum
+		sourceColumn: sexo_persona
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_parentesco
+		dataType: int64
+		formatString: 0
+		lineageTag: b5eacc1a-5635-471d-8fc2-f1b5f6512878
+		summarizeBy: sum
+		sourceColumn: tip_parentesco
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_ver
+		dataType: int64
+		formatString: 0
+		lineageTag: 5bf9a514-1373-4ea8-a02b-6510a5d60d24
+		summarizeBy: sum
+		sourceColumn: ind_discap_ver
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_oir
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b10eb69-cd67-48e2-a6cc-da259b30b81d
+		summarizeBy: sum
+		sourceColumn: ind_discap_oir
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_hablar
+		dataType: int64
+		formatString: 0
+		lineageTag: c48e28fe-7013-487b-b7ff-8edb323a78b6
+		summarizeBy: sum
+		sourceColumn: ind_discap_hablar
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_moverse
+		dataType: int64
+		formatString: 0
+		lineageTag: 76572ea8-c237-4883-a637-91c164decf27
+		summarizeBy: sum
+		sourceColumn: ind_discap_moverse
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_bañarse
+		dataType: int64
+		formatString: 0
+		lineageTag: ce296ea5-8bfd-43bb-92d5-f0799dc7cf0f
+		summarizeBy: sum
+		sourceColumn: ind_discap_bañarse
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_salir
+		dataType: int64
+		formatString: 0
+		lineageTag: 87d16a49-540f-4cb5-8a7f-bfc1298ee8ce
+		summarizeBy: sum
+		sourceColumn: ind_discap_salir
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_entender
+		dataType: int64
+		formatString: 0
+		lineageTag: a81b05e1-a1c3-49ae-bec9-22aca344ce24
+		summarizeBy: sum
+		sourceColumn: ind_discap_entender
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_discap_ninguna
+		dataType: int64
+		formatString: 0
+		lineageTag: 68b8840a-b5bc-4ded-b432-2e94483faa2b
+		summarizeBy: sum
+		sourceColumn: ind_discap_ninguna
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_seg_social
+		dataType: int64
+		formatString: 0
+		lineageTag: 1253186c-8432-4a84-b31f-b645f8d5155a
+		summarizeBy: sum
+		sourceColumn: tip_seg_social
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_acudio_salud
+		dataType: int64
+		formatString: 0
+		lineageTag: a955ec6d-4ebf-4837-ae64-5beeb427558e
+		summarizeBy: sum
+		sourceColumn: ind_acudio_salud
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_fue_atendido_salud
+		dataType: int64
+		formatString: 0
+		lineageTag: 702aed4d-0950-4b75-bd8b-d3dc7f586c5c
+		summarizeBy: sum
+		sourceColumn: ind_fue_atendido_salud
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_cuidado_niños
+		dataType: int64
+		formatString: 0
+		lineageTag: 27566f25-3ed2-4782-bb54-200c26e8f8df
+		summarizeBy: sum
+		sourceColumn: tip_cuidado_niños
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_recibe_comida
+		dataType: int64
+		formatString: 0
+		lineageTag: ad686d2e-266c-4c00-9d02-a600bf260a53
+		summarizeBy: sum
+		sourceColumn: ind_recibe_comida
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_leer_escribir
+		dataType: int64
+		formatString: 0
+		lineageTag: 88705ecd-b53d-4b51-a980-45928fabf81c
+		summarizeBy: sum
+		sourceColumn: ind_leer_escribir
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_estudia
+		dataType: int64
+		formatString: 0
+		lineageTag: 7f0764cb-3a1e-45d7-95b2-4ac675545141
+		summarizeBy: sum
+		sourceColumn: ind_estudia
+
+		annotation SummarizationSetBy = Automatic
+
+	column niv_educativo
+		dataType: int64
+		formatString: 0
+		lineageTag: 083cb609-085a-434c-892d-3db5cb0e0f4c
+		summarizeBy: sum
+		sourceColumn: niv_educativo
+
+		annotation SummarizationSetBy = Automatic
+
+	column grado_alcanzado
+		dataType: int64
+		formatString: 0
+		lineageTag: b2af0783-045e-40dd-a3ca-f46de671de25
+		summarizeBy: sum
+		sourceColumn: grado_alcanzado
+
+		annotation SummarizationSetBy = Automatic
+
+	column ind_fondo_pensiones
+		dataType: int64
+		formatString: 0
+		lineageTag: b18389bd-b592-47c0-aed1-a50094522167
+		summarizeBy: sum
+		sourceColumn: ind_fondo_pensiones
+
+		annotation SummarizationSetBy = Automatic
+
+	column tip_actividad_mes
+		dataType: int64
+		formatString: 0
+		lineageTag: b15c2a77-815a-44d2-b1f6-8c003c279e29
+		summarizeBy: sum
+		sourceColumn: tip_actividad_mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column H_5
+		dataType: int64
+		formatString: 0
+		lineageTag: 14fa53e5-a674-4252-ac0a-9ad3d8bca01c
+		summarizeBy: sum
+		sourceColumn: H_5
+
+		annotation SummarizationSetBy = Automatic
+
+	column I1
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b1b7398-8bef-4b9e-855e-7caae6b397fa
+		summarizeBy: sum
+		sourceColumn: I1
+
+		annotation SummarizationSetBy = Automatic
+
+	column I2
+		dataType: int64
+		formatString: 0
+		lineageTag: f4b63147-8672-4817-abcc-ae857f9b79cf
+		summarizeBy: sum
+		sourceColumn: I2
+
+		annotation SummarizationSetBy = Automatic
+
+	column I3
+		dataType: int64
+		formatString: 0
+		lineageTag: 2730532f-1fac-4397-93cf-7dd8122a603d
+		summarizeBy: sum
+		sourceColumn: I3
+
+		annotation SummarizationSetBy = Automatic
+
+	column I4
+		dataType: int64
+		formatString: 0
+		lineageTag: 6466c76f-8b03-4792-b861-088ab0ac1539
+		summarizeBy: sum
+		sourceColumn: I4
+
+		annotation SummarizationSetBy = Automatic
+
+	column I5
+		dataType: int64
+		formatString: 0
+		lineageTag: befeb9ec-2c2b-431f-a148-9cffd247c946
+		summarizeBy: sum
+		sourceColumn: I5
+
+		annotation SummarizationSetBy = Automatic
+
+	column I6
+		dataType: int64
+		formatString: 0
+		lineageTag: 3cad6d2f-2abc-4d81-ad88-869930d65461
+		summarizeBy: sum
+		sourceColumn: I6
+
+		annotation SummarizationSetBy = Automatic
+
+	column I7
+		dataType: int64
+		formatString: 0
+		lineageTag: a9f48f33-f495-45bb-847c-52cd23071c84
+		summarizeBy: sum
+		sourceColumn: I7
+
+		annotation SummarizationSetBy = Automatic
+
+	column I8
+		dataType: int64
+		formatString: 0
+		lineageTag: 18c359c9-c315-4d75-a6fc-cf17bc6465f2
+		summarizeBy: sum
+		sourceColumn: I8
+
+		annotation SummarizationSetBy = Automatic
+
+	column I9
+		dataType: int64
+		formatString: 0
+		lineageTag: a9754b9e-275c-4c79-813c-7ef0fe4306e3
+		summarizeBy: sum
+		sourceColumn: I9
+
+		annotation SummarizationSetBy = Automatic
+
+	column I10
+		dataType: int64
+		formatString: 0
+		lineageTag: 96952633-6c2e-46f9-b694-59e6386af7ae
+		summarizeBy: sum
+		sourceColumn: I10
+
+		annotation SummarizationSetBy = Automatic
+
+	column I11
+		dataType: int64
+		formatString: 0
+		lineageTag: ddf3a224-454d-4ff7-94ac-60d389cc0eac
+		summarizeBy: sum
+		sourceColumn: I11
+
+		annotation SummarizationSetBy = Automatic
+
+	column I12
+		dataType: int64
+		formatString: 0
+		lineageTag: 7c3e60a8-e2e2-461c-82b0-93dd356b015d
+		summarizeBy: sum
+		sourceColumn: I12
+
+		annotation SummarizationSetBy = Automatic
+
+	column I13
+		dataType: int64
+		formatString: 0
+		lineageTag: 8945d135-44ed-4423-a1dd-642550966540
+		summarizeBy: sum
+		sourceColumn: I13
+
+		annotation SummarizationSetBy = Automatic
+
+	column I14
+		dataType: int64
+		formatString: 0
+		lineageTag: d1cb4d5e-87ca-461d-a3e0-5b0b5fa33086
+		summarizeBy: sum
+		sourceColumn: I14
+
+		annotation SummarizationSetBy = Automatic
+
+	column I15
+		dataType: int64
+		formatString: 0
+		lineageTag: 63e02899-9554-426f-b753-b17dc8888f2d
+		summarizeBy: sum
+		sourceColumn: I15
+
+		annotation SummarizationSetBy = Automatic
+
+	column Clasificacion
+		dataType: string
+		lineageTag: 40ba4224-b6d2-431d-a33e-7e927db5630c
+		summarizeBy: none
+		sourceColumn: Clasificacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 230057ba-698f-4a55-a300-fd627b2c5d74
+		summarizeBy: sum
+		sourceColumn: anio
+
+		annotation SummarizationSetBy = Automatic
+
+	column grupo_sisben
+		dataType: string
+		lineageTag: 19c2636b-2d0d-4d9c-8eeb-c594f20d90da
+		summarizeBy: none
+		sourceColumn: grupo_sisben
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fec_digitacion
+		dataType: string
+		lineageTag: f5f0789a-3947-4309-af17-90b1a22fd905
+		summarizeBy: none
+		sourceColumn: Fec_digitacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Edad
+		dataType: int64
+		formatString: 0
+		lineageTag: e5f8761e-24e0-477e-be0f-d5ddba202ada
+		summarizeBy: sum
+		sourceColumn: Edad
+
+		annotation SummarizationSetBy = Automatic
+
+	column marca
+		dataType: string
+		lineageTag: 5c2b9a5a-f971-4d2c-9cbe-e25ef362a99f
+		summarizeBy: none
+		sourceColumn: marca
+
+		annotation SummarizationSetBy = Automatic
+
+	column estado
+		dataType: string
+		lineageTag: dea4a568-5042-422e-980c-138613127b95
+		summarizeBy: none
+		sourceColumn: estado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Source.Name'
+		dataType: string
+		lineageTag: ce2413d1-8958-48d0-a405-f06ec2b5c625
+		summarizeBy: none
+		sourceColumn: Source.Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Num_evento_vendaval
+		dataType: int64
+		formatString: 0
+		lineageTag: 057dd1e7-fee3-441d-bb2a-96857a76e4fe
+		summarizeBy: sum
+		sourceColumn: Num_evento_vendaval
+
+		annotation SummarizationSetBy = Automatic
+
+	column orden_clasificacion
+		dataType: int64
+		formatString: 0
+		lineageTag: 24a9550f-360e-4650-bc8c-dee753e403ff
+		summarizeBy: sum
+		sourceColumn: orden_clasificacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo_Vivienda_txt
+		dataType: string
+		lineageTag: f785b2eb-8800-4b5b-b35a-34d7c9e03cea
+		summarizeBy: none
+		sourceColumn: Tipo_Vivienda_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material de las Paredes'
+		dataType: string
+		lineageTag: 21671045-caf0-4bd1-b7e6-ab8ed5234b63
+		summarizeBy: none
+		sourceColumn: Material de las Paredes
+
+		annotation SummarizationSetBy = Automatic
+
+	column Energia_txt
+		dataType: string
+		lineageTag: 25dddbe6-e1f0-47c2-b3c8-8b2de75a0fea
+		summarizeBy: none
+		sourceColumn: Energia_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Acueducto_txt
+		dataType: string
+		lineageTag: adcfb51f-d845-4639-af59-0941c5188e08
+		summarizeBy: none
+		sourceColumn: Acueducto_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Alcantarillado_txt
+		dataType: string
+		lineageTag: 9867bbe7-23f7-4dce-b466-1d5f13d4e91e
+		summarizeBy: none
+		sourceColumn: Alcantarillado_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gas_txt
+		dataType: string
+		lineageTag: 3501d99b-0cc1-442d-8a96-34ff9d83a444
+		summarizeBy: none
+		sourceColumn: Gas_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Recoleccion_txt
+		dataType: string
+		lineageTag: 545c9bc3-279c-4f2a-a02c-b1fb79cb6530
+		summarizeBy: none
+		sourceColumn: Recoleccion_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Clase_txt
+		dataType: string
+		lineageTag: 2733c7fc-5f92-490c-92d8-91217334b13c
+		summarizeBy: none
+		sourceColumn: Clase_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sanitario_txt
+		dataType: string
+		lineageTag: 383484c0-500d-43f7-a986-781523067368
+		summarizeBy: none
+		sourceColumn: Sanitario_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Privaciones_Vivienda
+		dataType: int64
+		formatString: 0
+		lineageTag: 596d226f-1208-46c2-9046-20991f1b671d
+		summarizeBy: sum
+		sourceColumn: Privaciones_Vivienda
+
+		annotation SummarizationSetBy = Automatic
+
+	column Nivel_Calidad_Vivienda
+		dataType: string
+		lineageTag: b0bf86bb-3b20-45cb-9cf9-80baa2f8ea20
+		summarizeBy: none
+		sourceColumn: Nivel_Calidad_Vivienda
+
+		annotation SummarizationSetBy = Automatic
+
+	column Zona
+		dataType: string
+		lineageTag: 12742850-5525-4df0-8673-564797a618fd
+		summarizeBy: none
+		sourceColumn: Zona
+
+		annotation SummarizationSetBy = Automatic
+
+	column Es_Jefe
+		dataType: int64
+		formatString: 0
+		lineageTag: 3fc40990-a147-4836-b1b1-6a60701075eb
+		summarizeBy: sum
+		sourceColumn: Es_Jefe
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sexo_Jefe
+		dataType: int64
+		formatString: 0
+		lineageTag: 05bb1949-add9-4531-8129-e07654cb1349
+		summarizeBy: sum
+		sourceColumn: Sexo_Jefe
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sexo_Jefe_Label
+		dataType: string
+		lineageTag: a44491ea-ea70-4bbd-9e13-d31fe4b293c2
+		summarizeBy: none
+		sourceColumn: Sexo_Jefe_Label
+
+		annotation SummarizationSetBy = Automatic
+
+	column Personas_por_Cuarto
+		dataType: double
+		lineageTag: c0a1f9f8-04f6-428f-b55d-560f3abc32d6
+		summarizeBy: sum
+		sourceColumn: Personas_por_Cuarto
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Cat_Hacinamiento
+		dataType: string
+		lineageTag: ad02b6f4-f64f-448f-896f-202d7c268906
+		summarizeBy: none
+		sourceColumn: Cat_Hacinamiento
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Material del Piso'
+		dataType: string
+		lineageTag: 1d253967-4681-4cf2-a754-31c0ee81b9b0
+		summarizeBy: none
+		sourceColumn: Material del Piso
+
+		annotation SummarizationSetBy = Automatic
+
+	column Orden_Paredes
+		dataType: int64
+		formatString: 0
+		lineageTag: c4b624e8-bdd5-486d-9220-1fb91ead532b
+		summarizeBy: sum
+		sourceColumn: Orden_Paredes
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo_Ocupacion_txt
+		dataType: string
+		lineageTag: fb9739a1-eada-4cf9-8b64-445ef4549ccb
+		summarizeBy: none
+		sourceColumn: Tipo_Ocupacion_txt
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rango_Edad
+		dataType: string
+		lineageTag: e8fff7b1-2699-4175-8cb5-4e5335857bb5
+		summarizeBy: none
+		sourceColumn: Rango_Edad
+
+		annotation SummarizationSetBy = Automatic
+
+	column Orden_Edad
+		dataType: int64
+		formatString: 0
+		lineageTag: edb8ef5c-3936-4085-b7e8-4e6b53d970bc
+		summarizeBy: sum
+		sourceColumn: Orden_Edad
+
+		annotation SummarizationSetBy = Automatic
+
+	column Regimen_Salud_Limpio
+		dataType: string
+		lineageTag: d2125d8e-7a35-4055-ac00-d20300ae4344
+		summarizeBy: none
+		sourceColumn: Regimen_Salud_Limpio
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fct_Sisben = m
+		source =
+				let
+				    Origen = Parquet.Document(File.Contents("D:\VVANEGASA\My Documents\sisben_master_final.parquet"))
+				in
+				    Origen
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

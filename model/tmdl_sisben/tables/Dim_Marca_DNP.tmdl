@@ -1,0 +1,38 @@
+table Dim_Marca_DNP
+	lineageTag: db08eccd-9a44-4fca-b433-7c01268ff7a6
+
+	column Cod_Marca
+		formatString: 0
+		lineageTag: 387989da-defc-4ef4-95a9-bb0a9cea1944
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Cod_Marca]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Detalle
+		lineageTag: b15b119d-42fc-41c4-9037-eaba5f07b446
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Detalle]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Marca_DNP = calculated
+		mode: import
+		source = ```
+				
+				DATATABLE(
+				    "Cod_Marca", INTEGER, "Detalle", STRING,
+				    {
+				        {0, "Registro Válido"},
+				        {1, "Excluido de Publicación"},
+				        {10, "Verificación Persona"},
+				        {20, "Verificación Oficina"}
+				    }
+				)
+				
+				```
+
+	annotation PBI_Id = 47560ecd25fe469dbfbaebab03410401
+

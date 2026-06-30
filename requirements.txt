@@ -1,0 +1,6 @@
+pandas>=2.0.0
+pyarrow>=14.0.0
+duckdb>=0.10.0
+numpy>=1.26.0
+openpyxl>=3.1.0
+unicodedata2>=15.0.0

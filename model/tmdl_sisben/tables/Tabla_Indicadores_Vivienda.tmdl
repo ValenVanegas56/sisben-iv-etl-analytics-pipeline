@@ -1,0 +1,57 @@
+table Tabla_Indicadores_Vivienda
+	lineageTag: 82de8040-abcd-4856-a862-660e2a186357
+
+	measure Valor_Heatmap_Viv =
+			
+			VAR _ind = MAX(Tabla_Indicadores_Vivienda[Ausencia del Servicio])
+			RETURN
+			SWITCH(
+			    _ind,
+			    "Sin energía", [Pct_Sin_Energia],
+			    "Sin gas", [Pct_Sin_Gas],
+			    "Sin acueducto", [Pct_Sin_Acueducto],
+			    "Sin alcantarillado", [Pct_Sin_Alcantarillado],
+			    "Sin recolección", [Pct_Sin_Recoleccion]
+			)
+
+		displayFolder: "Selectores"
+		lineageTag: 256524f4-252f-4446-afc5-768923dedae1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Dimension
+		lineageTag: f406f9dd-6053-459d-825a-6dd47684ae7f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Dimension]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ausencia del Servicio'
+		lineageTag: 06eb1c46-f674-4af0-a90f-c0b8cb998347
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Ausencia del Servicio]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Tabla_Indicadores_Vivienda = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Ausencia del Servicio", STRING,
+				    "Dimension", STRING,
+				    {
+				        {"Paredes inadecuadas", "Condición Estructural"},
+				        {"Pisos inadecuados", "Condición Estructural"},
+				        {"Sin energía", "Acceso a Servicios Públicos"},
+				        {"Sin gas", "Acceso a Servicios Públicos"},
+				        {"Sin acueducto", "Acceso a Servicios Públicos"},
+				        {"Sin alcantarillado", "Acceso a Servicios Públicos"},
+				        {"Sin recolección", "Acceso a Servicios Públicos"}
+				    }
+				)
+
+	annotation PBI_Id = a9a9860d1980449c964ef600f6a09c6d
+

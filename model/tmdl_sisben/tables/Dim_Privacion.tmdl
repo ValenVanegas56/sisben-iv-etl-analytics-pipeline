@@ -1,0 +1,43 @@
+table Dim_Privacion
+	lineageTag: f0a242cc-1eef-4e5b-8a68-91a695ae7bd9
+
+	measure Pct_Privacion_Dinamica =
+			
+			SWITCH(
+			    SELECTEDVALUE(Dim_Privacion[Privacion]),
+			    "Agua", [Pct_Sin_Agua],
+			    "Saneamiento", [Pct_Saneamiento_Inadecuado],
+			    "Pisos", [Pct_Pisos_Inadecuados],
+			    "Paredes", [Pct_Paredes_Inadecuadas],
+			    "Hacinamiento", [Pct_Hacinamiento]
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+
+		displayFolder: "Selectores"
+		lineageTag: 3046cc3a-7ef6-4503-8acd-9537de69ad04
+
+	column Privacion
+		lineageTag: b24e398e-e192-4576-897e-504342fb4a28
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Privacion]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Privacion = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Privacion", STRING,
+				    {
+				        {"Agua"},
+				        {"Saneamiento"},
+				        {"Pisos"},
+				        {"Paredes"},
+				        {"Hacinamiento"}
+				    }
+				)
+
+	annotation PBI_Id = ed749e93a5c24fe7b4a4d1dff6d252b7
+

@@ -1,0 +1,36 @@
+table Nivel_Sisben
+	lineageTag: 50df988d-a2a4-4321-9552-79d7ce081da7
+
+	measure Eje_Sisben =
+			
+			SWITCH(
+			    SELECTEDVALUE(Nivel_Sisben[Nivel]),
+			    "Grupo General", SELECTEDVALUE(fct_Sisben[grupo_sisben]),
+			    "Subgrupo Detallado", SELECTEDVALUE(fct_Sisben[Clasificacion])
+			)
+
+		displayFolder: "Selectores"
+		lineageTag: d75e7aa1-1450-45ac-a004-71d407ea986c
+
+	column Nivel
+		lineageTag: e2dd768c-1c20-4a9d-a804-232e018e16e1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Nivel]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Nivel_Sisben = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Nivel", STRING,
+				    {
+				        {"grupo_sisben"},
+				        {"subgrupo_detallado"}
+				    }
+				)
+
+	annotation PBI_Id = 2561f5c897a643b7bafda06e92363d42
+

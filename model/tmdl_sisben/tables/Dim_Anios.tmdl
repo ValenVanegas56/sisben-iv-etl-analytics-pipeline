@@ -1,0 +1,21 @@
+table Dim_Anios
+	lineageTag: bf9b8e46-5983-4368-80a1-d5ad8ff65b53
+
+	column anio
+		formatString: 0
+		lineageTag: b59ecea0-0554-441a-aa37-db8d19c3cf68
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: 1 Anonimizados (2)[anio]
+		columnOrigin: fct_Sisben.anio
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Anios = calculated
+		mode: import
+		source =
+				
+				DISTINCT(fct_Sisben[anio])
+
+	annotation PBI_Id = e114c85677194a00a65f8edf1fb8d8ef
+

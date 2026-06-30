@@ -1,0 +1,37 @@
+table Hogares_DANE
+	lineageTag: 264a9866-e3cc-4b86-9353-ef6882994c26
+
+	measure '% Cobertura Hogares' = ```
+			
+			DIVIDE(
+			    [Hogares], 
+			    SUM('Hogares_DANE'[Hogares_Proyectados]), 
+			    0
+			)
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: d02909f4-b2f5-4a31-b45f-6e638ee65e5a
+
+	column cod_mpio
+		dataType: string
+		lineageTag: 502df976-3744-42c9-ac14-0ee98aaa0cdf
+		sourceColumn: cod_mpio
+
+	column anio
+		dataType: int64
+		lineageTag: fee1a249-a2ff-4ea6-972b-eaeb12d00b62
+		sourceColumn: anio
+
+	column Cod_clase
+		dataType: int64
+		lineageTag: e20e2a2d-5dd3-4054-b469-91903034fd58
+		sourceColumn: Cod_clase
+
+	column Hogares_Proyectados
+		dataType: int64
+		formatString: #,0
+		lineageTag: 14446610-4384-48a9-ab12-984c52b24659
+		sourceColumn: Hogares_Proyectados
+
+	partition Partition_Hogares_DANE = m
+		source = let Source = Parquet.Document(File.Contents("D:\VVANEGASA\My Documents\hogares_dane.parquet")),#"Changed Type" = Table.TransformColumnTypes(Source,{{"cod_mpio", type text}, {"anio", Int64.Type}, {"Cod_clase", Int64.Type}, {"Hogares_Proyectados", Int64.Type}}) in #"Changed Type"

@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+
+# Entornos virtuales
+.env
+.venv
+env/
+venv/
+
+# Microdatos Sisben — protegidos Ley 1581/2012
+*.parquet
+csvs_sisben*/
+sisben_master*
+
+# CSVs con datos personales
+mpio_*.csv
+dim_descargas_municipios.csv
+
+# Informes municipales (125 PDFs Gobernación)
+docs/informes/
+
+# Logs de ejecución
+*.log
+
+# Archivos temporales
+*.bak
+*.tmp
+dax_dict_dump.txt
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,75 @@
+table Dim_Estado_DNP
+	lineageTag: 2487ad8c-cf0a-4a53-90c2-51305ed06c83
+
+	column Cod_Estado
+		formatString: 0
+		lineageTag: 35d66cf4-8bf6-4778-b771-ebbf4509585d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Cod_Estado]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Descripcion_Motivo
+		lineageTag: 7592fe72-c093-4b9e-9079-8b86ebe2fc8b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Descripcion_Motivo]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Categoria_Macro
+		lineageTag: c7c70886-d67d-45be-8f8c-176ea785b97b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Categoria_Macro]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Estado_DNP = calculated
+		mode: import
+		source = ```
+				
+				DATATABLE(
+				    "Cod_Estado", INTEGER, 
+				    "Descripcion_Motivo", STRING, 
+				    "Categoria_Macro", STRING,
+				    {
+				        {0, "Registro Válido", "Válido"},
+				        {10, "Excluido - Fallecido", "Excluido"},
+				        {30, "Verificación - jefe de hogar - Por Denuncia", "Verificación"},
+				        {31, "Verificación - miembros del hogar - Por Denuncia", "Verificación"},
+				        {32, "Verificación - Por Denuncia - Inconsistencias en procedimiento", "Verificación"},
+				        {40, "Verificación - Desactualización - ind_está_embarazada", "Verificación"},
+				        {41, "Verificación - Desactualización - niv_educativo", "Verificación"},
+				        {42, "Verificación - Desactualización - Ind_fondo_pensiones", "Verificación"},
+				        {43, "Verificación - Desactualización - Ocupación e ingresos", "Verificación"},
+				        {44, "Verificación - Desactualización - actividad principal", "Verificación"},
+				        {50, "Verificación - Calidad - Movimiento atípico entre fichas", "Verificación"},
+				        {51, "Verificación - Calidad - Inclusión atípica en hogar", "Verificación"},
+				        {52, "Verificación - Calidad - Número atípico hogar con discapacidad", "Verificación"},
+				        {53, "Verificación - Calidad - Número atípico no parientes", "Verificación"},
+				        {54, "Verificación - Calidad - Número atípico otro parentesco", "Verificación"},
+				        {55, "Verificación - Calidad - Inclusión atípica no parientes u otros", "Verificación"},
+				        {60, "Calidad - Datos no válidos en la encuesta (cálculo/fechas)", "Excluido"},
+				        {61, "Verificación - Calidad - Parentescos inconsistentes", "Verificación"},
+				        {62, "Verificación - Calidad - grado_alcanzado", "Verificación"},
+				        {63, "Verificación - Calidad - Antecedentes Sociodemograficos", "Verificación"},
+				        {64, "Verificación - Calidad - inconsistencia hijos embarazo", "Verificación"},
+				        {65, "Verificación - Calidad - Ocupación e ingresos", "Verificación"},
+				        {66, "Verificación - Calidad - Vivienda", "Verificación"},
+				        {67, "Verificación - Calidad - Hogares", "Verificación"},
+				        {68, "Verificación - Calidad - num_cuartos_vivienda", "Verificación"},
+				        {69, "Verificación - Calidad - Distancia de la encuesta a vivienda", "Verificación"},
+				        {70, "Excluido - Calidad - Documento no válido", "Excluido"},
+				        {71, "Excluido - Calidad - Número documento duplicado", "Excluido"},
+				        {90, "Verificación - Calidad - Desmejoramiento vivienda", "Verificación"},
+				        {91, "Verificación - Calidad - Desmejoramiento nivel educativo", "Verificación"},
+				        {92, "Verificación - Calidad - Desmejoramiento ocupación", "Verificación"}
+				    }
+				)
+				
+				```
+
+	annotation PBI_Id = 851c5daecb3840ae9a12c08c258c4dae
+

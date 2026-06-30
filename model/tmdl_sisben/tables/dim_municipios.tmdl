@@ -1,0 +1,199 @@
+table dim_municipios
+	lineageTag: 38e19f86-66cd-44c7-9a0e-498c9de25951
+
+	column codMpio5
+		dataType: string
+		lineageTag: 91b7a595-2651-45f1-bbd5-99b3974fd033
+		summarizeBy: none
+		sourceColumn: codMpio5
+
+		annotation SummarizationSetBy = Automatic
+
+	column Municipio
+		dataType: string
+		lineageTag: 088b2f58-bb5f-42a3-9f9b-8d8bfe8c7d44
+		summarizeBy: none
+		sourceColumn: Municipio
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_Zona
+		dataType: string
+		lineageTag: b725514a-06db-41d0-aced-f46c9ae3afa1
+		summarizeBy: none
+		sourceColumn: Cod_Zona
+
+		annotation SummarizationSetBy = Automatic
+
+	column NombreZona
+		dataType: string
+		lineageTag: 2d1d6595-4361-4424-8d2c-d65d6ae1af17
+		summarizeBy: none
+		sourceColumn: NombreZona
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_SubRegion
+		dataType: string
+		lineageTag: dfb63b39-7be1-4d42-a157-7af516541a2f
+		summarizeBy: none
+		sourceColumn: Cod_SubRegion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subregion
+		dataType: string
+		lineageTag: 2cce9835-c41b-47f3-bc4a-76ad1e3618af
+		summarizeBy: none
+		sourceColumn: Subregion
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomSubRegion
+		dataType: string
+		lineageTag: 8b2bc23d-2886-4984-a9df-8cd4e74ffb7a
+		summarizeBy: none
+		sourceColumn: NomSubRegion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ubicacion
+		dataType: string
+		lineageTag: b645e75a-2b7d-49a6-bdf6-eab1b623c7a9
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Ubicacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column TERRIT_CAR
+		dataType: string
+		lineageTag: d164f02b-588e-497d-bd46-06a81e7e1f88
+		summarizeBy: none
+		sourceColumn: TERRIT_CAR
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 90c3eb8b-575a-4adb-ad72-73088805be4e
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSIDE_X
+		dataType: double
+		lineageTag: 1910576e-da35-42fe-8251-ae7cfb885886
+		summarizeBy: sum
+		sourceColumn: INSIDE_X
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column INSIDE_Y
+		dataType: double
+		lineageTag: 0652357e-e530-4fc7-8c08-b18fe533a6e0
+		summarizeBy: sum
+		sourceColumn: INSIDE_Y
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Area_Km2
+		dataType: double
+		lineageTag: cba451b8-adaf-4ff4-9635-8beaebd79c3e
+		summarizeBy: sum
+		sourceColumn: Area_Km2
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EAT
+		dataType: string
+		lineageTag: 08714775-0a84-42ba-a8bc-d789a92be926
+		summarizeBy: none
+		sourceColumn: EAT
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_Subregión
+		dataType: string
+		lineageTag: 9243891e-3c99-4d70-957d-fef756773ada
+		summarizeBy: none
+		sourceColumn: Cod_Subregión
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_Zona2
+		dataType: string
+		lineageTag: 97d6ac87-ffe5-4ba8-b236-6d41907ebfbc
+		summarizeBy: none
+		sourceColumn: Cod_Zona2
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_Prov
+		dataType: string
+		lineageTag: 4d70683c-dde8-462e-aa73-0c4ac9adeb0f
+		summarizeBy: none
+		sourceColumn: Cod_Prov
+
+		annotation SummarizationSetBy = Automatic
+
+	column ZOMAC
+		dataType: string
+		lineageTag: 8adb7826-bd53-4cde-a746-00fe369e42de
+		summarizeBy: none
+		sourceColumn: ZOMAC
+
+		annotation SummarizationSetBy = Automatic
+
+	column PDET
+		dataType: string
+		lineageTag: e5f4b774-d7de-4dfd-a0d4-70d21435fbfc
+		summarizeBy: none
+		sourceColumn: PDET
+
+		annotation SummarizationSetBy = Automatic
+
+	column RPG
+		dataType: string
+		lineageTag: 7a72aa87-c6af-49ba-832f-19d63b655c25
+		summarizeBy: none
+		sourceColumn: RPG
+
+		annotation SummarizationSetBy = Automatic
+
+	column cod_mpio
+		dataType: string
+		lineageTag: 5f3e6eba-ee03-4412-92bd-f435a041c326
+		summarizeBy: none
+		sourceColumn: cod_mpio
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_municipios = m
+		mode: import
+		source =
+				let
+				    Origen = Excel.Workbook(File.Contents("D:\VVANEGASA\My Documents\sisben\Divpola_antioquia_PB.xlsx"), null, true),
+				    tblMpiosAntio_Table = Origen{[Item="tblMpiosAntio",Kind="Table"]}[Data],
+				    #"Tipo cambiado" = Table.TransformColumnTypes(tblMpiosAntio_Table,{{"cod_mpio", Int64.Type}, {"codMpio5", Int64.Type}, {"NomMunicipio", type text}, {"Cod_Zona", Int64.Type}, {"NombreZona", type text}, {"Cod_SubRegion", Int64.Type}, {"Subregion", type text}, {"NomSubRegion", type text}, {"Ubicacion", type text}, {"TERRIT_CAR", type text}, {"Region", type text}, {"INSIDE_X", type number}, {"INSIDE_Y", type number}, {"Area_Km2", Int64.Type}, {"EAT", type text}, {"Cod_Subregión", type text}, {"Cod_Zona2", type text}, {"Cod_Prov", type text}, {"ZOMAC", type text}, {"PDET", type text}, {"RPG", type text}, {"Alcalde_Tit", type text}, {"Alcalde_Nomb", type text}}),
+				    #"Duplicados quitados" = Table.Distinct(#"Tipo cambiado", {"cod_mpio"}),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Duplicados quitados",{{"cod_mpio", type text}, {"codMpio5", type text}, {"Cod_Zona", type text}, {"Cod_SubRegion", type text}, {"Area_Km2", type number}}),
+				    #"Columnas quitadas" = Table.RemoveColumns(#"Tipo cambiado1",{"Alcalde_Tit", "Alcalde_Nomb"}),
+				    #"Personalizada agregada" = Table.AddColumn(#"Columnas quitadas", "cod_mpio4", each Text.PadStart(Text.From([cod_mpio]), 5, "0")),
+				    #"Columnas reordenadas" = Table.ReorderColumns(#"Personalizada agregada",{"cod_mpio4", "cod_mpio", "codMpio5", "NomMunicipio", "Cod_Zona", "NombreZona", "Cod_SubRegion", "Subregion", "NomSubRegion", "Ubicacion", "TERRIT_CAR", "Region", "INSIDE_X", "INSIDE_Y", "Area_Km2", "EAT", "Cod_Subregión", "Cod_Zona2", "Cod_Prov", "ZOMAC", "PDET", "RPG"}),
+				    #"Columnas quitadas1" = Table.RemoveColumns(#"Columnas reordenadas",{"cod_mpio"}),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Columnas quitadas1",{{"cod_mpio4", "cod_mpio"}, {"NomMunicipio", "Municipio"}})
+				in
+				    #"Columnas con nombre cambiado"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+
