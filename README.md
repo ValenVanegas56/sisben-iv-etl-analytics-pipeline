@@ -4,6 +4,30 @@ End-to-end data pipeline for processing, validating, and analyzing SISBEN IV mic
 
 ---
 
+## Dashboard Preview
+
+| Home | Panorama General |
+|---|---|
+| ![Home](assets/screenshots/01_home.png) | ![Panorama General](assets/screenshots/02_panorama_general.png) |
+
+| IPM View | Territorial Distribution |
+|---|---|
+| ![IPM](assets/screenshots/03_panorama_ipm.png) | ![Territorial](assets/screenshots/04_panorama_territorial.png) |
+
+| Population Pyramid | Housing & Households |
+|---|---|
+| ![Pyramid](assets/screenshots/05_panorama_piramide.png) | ![Housing](assets/screenshots/06_viviendas_hogares.png) |
+
+| Housing Detail | Households Module |
+|---|---|
+| ![Housing Detail](assets/screenshots/07_viviendas_detalle.png) | ![Households](assets/screenshots/08_hogares.png) |
+
+**Relational Model — Power BI Semantic Layer**
+
+![Relational Model](assets/screenshots/09_modelo_relacional.png)
+
+---
+
 ## Background
 
 SISBEN IV is Colombia's primary social targeting instrument. This repository contains the code built to automate the ingestion, cleaning, quality validation, and analytical modeling of SISBEN IV microdata for Antioquia — covering over 4 million individual records and 26 computed columns derived from the DNP's original variables.
